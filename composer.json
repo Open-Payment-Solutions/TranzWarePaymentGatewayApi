@@ -9,7 +9,12 @@
       "name": "Anar K. Jafarov",
       "email": "anar.k.jafarov@gmail.com",
       "homepage": "http://anarjafarov.me",
-      "role": "Developer"
+      "role": "Maintainer"
+    },
+    {
+      "name": "Eugene Buchinsky",
+      "email": "jonston@list.ru",
+      "role": "Maintainer"
     }
   ],
   "require": {
