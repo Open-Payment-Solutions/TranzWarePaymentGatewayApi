@@ -1,9 +1,9 @@
 <?php
 
-namespace num8er\TranzWarePaymentGateway;
+namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
-use \num8er\TranzWarePaymentGateway\Requests\TranzWarePaymentGatewayOrderRequest;
-use \num8er\TranzWarePaymentGateway\Requests\TranzWarePaymentGatewayOrderStatusRequest;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatewayOrderRequest;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatewayOrderStatusRequest;
 
 /**
  * Factory class for creation of request objects
@@ -25,7 +25,7 @@ use \num8er\TranzWarePaymentGateway\Requests\TranzWarePaymentGatewayOrderStatusR
  *  $orderRequest = $requestFactory->createOrderRequest(1, 'USD', 'TEST PAYMENT #1'); // --> instance of TranzWarePaymentGatewayRequestInterface
  *
  * Class TranzWarePaymentGatewayRequestFactory
- * @package num8er\TranzWarePaymentGateway
+ * @package OpenPaymentSolutions\TranzWarePaymentGateway
  */
 class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRequestFactoryInterface
 {

@@ -1,12 +1,12 @@
 <?php
 
-namespace num8er\TranzWarePaymentGateway\Requests;
+namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
-use \num8er\TranzWarePaymentGateway\OrderTypes;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
 
 /**
  * Class TranzWarePaymentGatewayOrderRequest
- * @package num8er\TranzWarePaymentGateway\Requests
+ * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
 class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequestInterface
 {

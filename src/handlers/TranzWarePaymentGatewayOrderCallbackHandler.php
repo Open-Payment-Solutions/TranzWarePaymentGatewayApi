@@ -1,12 +1,12 @@
 <?php
 
-namespace num8er\TranzWarePaymentGateway\Handlers;
+namespace OpenPaymentSolutions\TranzWarePaymentGateway\Handlers;
 
 /**
  * Class that handles request from TWPG after approved/canceled/declined order creation on TWPG site
  *
  * Class TranzWarePaymentGatewayOrderCallbackHandler
- * @package num8er\TranzWarePaymentGateway\Handlers
+ * @package OpenPaymentSolutions\TranzWarePaymentGateway\Handlers
  */
 class TranzWarePaymentGatewayOrderCallbackHandler implements TranzWarePaymentGatewayHandlerInterface
 {

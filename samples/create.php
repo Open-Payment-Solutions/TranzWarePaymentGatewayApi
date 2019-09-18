@@ -5,9 +5,9 @@ error_reporting(E_ALL);
 
 require_once('vendor/autoload.php');
 
-use \num8er\TranzWarePaymentGateway\TranzWarePaymentGatewayRequestFactory;
-use \num8er\TranzWarePaymentGateway\CurrencyCodes;
-use \num8er\TranzWarePaymentGateway\OrderTypes;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\TranzWarePaymentGatewayRequestFactory;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\CurrencyCodes;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
 
 $requestFactory = new TranzWarePaymentGatewayRequestFactory(
     'https://tranz-ware-payment-gateway/url',

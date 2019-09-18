@@ -1,10 +1,10 @@
 <?php
 
-namespace num8er\TranzWarePaymentGateway\Requests;
+namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
  * Interface TranzWarePaymentGatewayRequestResultInterface
- * @package num8er\TranzWarePaymentGateway\Requests
+ * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
 interface TranzWarePaymentGatewayRequestResultInterface
 {

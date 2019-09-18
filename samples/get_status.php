@@ -2,7 +2,7 @@
 
 require_once('vendor/autoload.php');
 
-use \num8er\TranzWarePaymentGateway\TranzWarePaymentGatewayRequestFactory;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\TranzWarePaymentGatewayRequestFactory;
 
 $requestFactory = new TranzWarePaymentGatewayRequestFactory(
     'https://tranz-ware-payment-gateway/url',

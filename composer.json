@@ -1,6 +1,6 @@
 {
-  "name": "num8er/tranzware-payment-gateway",
-  "version": "1.1.7-beta",
+  "name": "open-payment-solutions/tranzware-payment-gateway",
+  "version": "1.0.0-beta",
   "description": "Library for working with TranzWare Payment Gateway",
   "type": "library",
   "license": "MIT",
@@ -22,9 +22,9 @@
   },
   "autoload": {
     "psr-4": {
-      "num8er\\TranzWarePaymentGateway\\": "src/",
-      "num8er\\TranzWarePaymentGateway\\Requests\\": "src/requests/",
-      "num8er\\TranzWarePaymentGateway\\Handlers\\": "src/handlers/",
+      "OpenPaymentSolutions\\TranzWarePaymentGateway\\": "src/",
+      "OpenPaymentSolutions\\TranzWarePaymentGateway\\Requests\\": "src/requests/",
+      "OpenPaymentSolutions\\TranzWarePaymentGateway\\Handlers\\": "src/handlers/",
       "tests\\": "tests/"
     }
   }

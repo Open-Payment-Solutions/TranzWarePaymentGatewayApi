@@ -12,7 +12,7 @@ provided by CompassPlus
 **Installation:**
 
 ```
-composer require num8er/tranzware-payment-gateway
+composer require require open-payment-solutions/tranzware-payment-gateway
 ```
 
 ---

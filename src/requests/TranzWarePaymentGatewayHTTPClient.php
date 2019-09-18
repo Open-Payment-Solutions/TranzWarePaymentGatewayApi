@@ -1,9 +1,9 @@
 <?php
-namespace num8er\TranzWarePaymentGateway\Requests;
+namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
  * Class TranzWarePaymentGatewayHTTPClient
- * @package num8er\TranzWarePaymentGateway\Requests
+ * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
 class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPClientInterface
 {

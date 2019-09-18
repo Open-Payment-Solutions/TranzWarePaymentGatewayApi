@@ -1,12 +1,12 @@
 <?php
 
-namespace num8er\TranzWarePaymentGateway;
+namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
-use \num8er\TranzWarePaymentGateway\Handlers\TranzWarePaymentGatewayOrderCallbackHandler;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\Handlers\TranzWarePaymentGatewayOrderCallbackHandler;
 
 /**
  * Class TranzWarePaymentGatewayHandlerFactory
- * @package num8er\TranzWarePaymentGateway
+ * @package OpenPaymentSolutions\TranzWarePaymentGateway
  */
 class TranzWarePaymentGatewayHandlerFactory implements TranzWarePaymentGatewayHandlerFactoryInterface
 {
