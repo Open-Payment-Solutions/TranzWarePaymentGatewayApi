@@ -76,4 +76,12 @@ final class OrderTypesTest extends TestCase
         $actual = OrderTypes::fromString($input);
         $this->assertEquals($expected, $actual);
     }
+
+    public function testFromStringOneWordCaseFirst()
+    {
+        $input = 'Purchase';
+        $expected = 'Purchase';
+        $actual = OrderTypes::fromString($input);
+        $this->assertEquals($expected, $actual);
+    }
 }
