@@ -9,33 +9,43 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
 {
     protected $url;
     protected $body;
-    protected $sslCertificate;
+    protected $ssl;
     protected $debug = false;
+    protected $strictSSL = true;
     protected $debugToFile;
+    protected $debugFileDescriptor;
 
     /**
      * TranzWarePaymentGatewayHTTPClient constructor.
-     *
-     * @param string $url              Destination request url
-     * @param string $body             Body that will be delivered to destination
-     * @param array  $sslCertificate   Array of 'key', 'keyPass', 'cert'  values
+     * @param string $url
+     * @param null $body
+     * @param null $ssl
+     * @param bool $strictSSL
      */
     public function __construct
     (
         $url,
         $body = null,
-        $sslCertificate = null
+        $ssl = null,
+        $strictSSL = true
     )
     {
         $this->url = $url;
         $this->body = $body;
-        $this->sslCertificate = $sslCertificate;
+        $this->ssl = $ssl;
+        $this->strictSSL = $strictSSL;
     }
 
+    /**
+     * Set debug to log file
+     *
+     * @param string $path_to_file
+     */
     final public function setDebugToFile($path_to_file)
     {
         $this->debug = true;
         $this->debugToFile = $path_to_file;
+        $this->debugFileDescriptor = fopen($path_to_file, 'w+');
     }
 
     /**
@@ -49,11 +59,10 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
         curl_setopt($ch, CURLOPT_URL, $this->url);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_VERBOSE, $this->debug);
-        if ($this->debug) {
-            curl_setopt($ch, CURLOPT_STDERR, fopen($this->debugToFile, 'w+'));
+        if (!$this->strictSSL) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         }
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
@@ -63,19 +72,27 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
 
-        if ($this->sslCertificate) {
-            $key = $this->sslCertificate['key'];
-            $keyPass = $this->sslCertificate['keyPass'];
-            $cert = $this->sslCertificate['cert'];
-            curl_setopt($ch, CURLOPT_SSLCERT, $cert);
-            curl_setopt($ch, CURLOPT_SSLKEY, $key);
-            curl_setopt($ch, CURLOPT_SSLKEYPASSWD, $keyPass);
-            curl_setopt($ch, CURLOPT_CAINFO, $cert);
-            curl_setopt($ch, CURLOPT_CAPATH, $cert);
+        if ($this->ssl) {
+            $sslCert = $this->ssl['cert'];
+            $sslCertPass = $this->ssl['certPass'];
+            curl_setopt($ch, CURLOPT_SSLCERT, $sslCert);
+            curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $sslCertPass);
+        }
+
+        if ($this->debug) {
+            curl_setopt($ch, CURLOPT_STDERR, $this->debugFileDescriptor);
+            fputs($this->debugFileDescriptor, "URL: " . $this->url);
+            fputs($this->debugFileDescriptor, "BODY: \n" . var_export($this->body, true));
         }
 
         $output = curl_exec($ch);
         $info = curl_getinfo($ch);
+
+        if ($this->debug) {
+            fputs($this->debugFileDescriptor, "INFO: \n" . var_export($info, true));
+            fputs($this->debugFileDescriptor, "OUTPUT: \n" . var_export($output, true));
+        }
+
         return new TranzWarePaymentGatewayHTTPClientResult(
             $output,
             $info
