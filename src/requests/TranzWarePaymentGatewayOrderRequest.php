@@ -3,6 +3,7 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 use \OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatewayRequestSettings as RequestSettings;
 
 /**
  * Class TranzWarePaymentGatewayOrderRequest
@@ -10,6 +11,8 @@ use \OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
  */
 class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequestInterface
 {
+    use RequestSettings;
+
     private $requestAttributes = [];
     private $debugToFile = null;
 
@@ -47,7 +50,7 @@ class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequ
             'cert' => $this->sslCertificate
         ];
         $httpClient =
-            new TranzWarePaymentGatewayHTTPClient($this->requestAttributes['requestUrl'], $this->getRequestBody(), $ssl);
+            new TranzWarePaymentGatewayHTTPClient($this->requestAttributes['requestUrl'], $this->getRequestBody(), $ssl, $this->strictSSL);
         if ($this->debugToFile) {
             $httpClient->setDebugToFile($this->debugToFile);
         }
@@ -63,14 +66,5 @@ class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequ
             $body = str_replace('{{' . $key . '}}', $value, $body);
         }
         return $body;
-    }
-
-    private $sslKey, $sslKeyPass, $sslCertificate;
-
-    final public function setSslCertificate($cert, $key, $keyPass = '')
-    {
-        $this->sslKey = $key;
-        $this->sslKeyPass = $keyPass;
-        $this->sslCertificate = $cert;
     }
 }

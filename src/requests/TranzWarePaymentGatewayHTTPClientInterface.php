@@ -14,8 +14,9 @@ interface TranzWarePaymentGatewayHTTPClientInterface
      * @param string $url
      * @param null   $body
      * @param null   $sslCertificate
+     * @param bool $strictSSL
      */
-    public function __construct($url, $body = null, $sslCertificate = null);
+    public function __construct($url, $body = null, $sslCertificate = null, $strictSSL = true);
 
     /**
      * @param string $path_to_file

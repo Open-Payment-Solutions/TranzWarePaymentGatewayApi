@@ -15,8 +15,10 @@ $requestFactory = new TranzWarePaymentGatewayRequestFactory(
 $keyFile = __DIR__.'/certificates/your-private-key.pem';
 $keyPass = file_get_contents(__DIR__.'/certificates/your-private-key-pass.txt');
 $certFile = __DIR__.'/certificates/cert-signed-by-payment-gateway-part.crt';
-$requestFactory->setCertificate($certFile, $keyFile, $keyPass);
-$requestFactory->setDebugFile(__DIR__.'/debug.log');
+$requestFactory
+    ->setCertificate($certFile, $keyFile, $keyPass)
+    ->disableSSLVerification() // for dev environment or if no need to validate SSL host
+    ->setDebugFile(__DIR__.'/debug.log');
 
 $orderStatusRequest = $requestFactory->createOrderStatusRequest($_GET['ORDERID'], $_GET['SESSIONID']);
 $orderStatusRequestResult = $orderStatusRequest->execute();

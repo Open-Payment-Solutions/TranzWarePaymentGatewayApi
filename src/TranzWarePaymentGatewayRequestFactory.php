@@ -21,6 +21,7 @@ use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatew
  *  $keyPass = file_get_contents(__DIR__.'/../certificates/your-private-key-pass.txt');
  *  $certFile = __DIR__.'/../certificates/cert-signed-by-payment-gateway-part.crt';
  *  $requestFactory->setCertificate($certFile, $keyFile, $keyPass);
+ *  $requestFactory->disableSSLVerification();
  *
  *  $orderRequest = $requestFactory->createOrderRequest(1, 'USD', 'TEST PAYMENT #1'); // --> instance of TranzWarePaymentGatewayRequestInterface
  *
@@ -56,18 +57,55 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
         $this->setUrlProvider($urlProvider);
     }
 
-    private $sslCertificate, $sslKey, $sslKeyPass;
+    private $strictSSL = null, $sslCertificate, $sslKey, $sslKeyPass;
 
     /**
+     * Setting certificate, key file, key pass (default: ''), strict mode (default: enabled)
+     *
      * @param string $certFile  Path to certificate
      * @param string $keyFile   Path to private key
      * @param string $keyPass   Password provided in creation of private key
+     * @param bool|null $strictSSL Enables or disables SSL host verification (default: enabled)
+     *
+     * @return TranzWarePaymentGatewayRequestFactory
      */
-    final public function setCertificate($certFile, $keyFile, $keyPass = '')
+    final public function setCertificate($certFile, $keyFile, $keyPass = '', $strictSSL = null)
     {
         $this->sslKey = $keyFile;
         $this->sslKeyPass = $keyPass;
         $this->sslCertificate = $certFile;
+        if (is_null($strictSSL)) {
+            if (is_null($this->strictSSL)) {
+                $this->enableSSLVerification();
+            }
+        }
+        else {
+            $this->strictSSL = (bool)$strictSSL;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Disables SSL host verification
+     *
+     * @return TranzWarePaymentGatewayRequestFactory
+     */
+    final public function disableSSLVerification()
+    {
+        $this->strictSSL = false;
+        return $this;
+    }
+
+    /**
+     * Enables SSL host verification
+     *
+     * @return TranzWarePaymentGatewayRequestFactory
+     */
+    final public function enableSSLVerification()
+    {
+        $this->strictSSL = true;
+        return $this;
     }
 
     protected $MERCHANT_ID;
@@ -83,10 +121,13 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
 
     /**
      * @param TranzWarePaymentGatewayUrlProviderInterface $urlProvider
+     *
+     * @return TranzWarePaymentGatewayRequestFactory
      */
     final private function setUrlProvider(TranzWarePaymentGatewayUrlProviderInterface $urlProvider)
     {
         $this->urlProvider = $urlProvider;
+        return $this;
     }
 
     /**
@@ -101,13 +142,15 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
 
     /**
      * @param string $pathToFile
+     *
+     * @return TranzWarePaymentGatewayRequestFactory
      */
     final public function setDebugFile($pathToFile)
     {
         $this->debug = true;
         $this->debugFile = $pathToFile;
+        return $this;
     }
-
 
     /**
      * @param float  $amount
@@ -132,7 +175,7 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
             $this->LANG,
             $this->debug ? $this->debugFile : null
         );
-        $request->setSslCertificate($this->sslCertificate, $this->sslKey, $this->sslKeyPass);
+        $request->setSslCertificate($this->sslCertificate, $this->sslKey, $this->sslKeyPass, $this->strictSSL);
         return $request;
     }
 
@@ -176,7 +219,7 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
             $this->LANG,
             $this->debug ? $this->debugFile : null
         );
-        $request->setSslCertificate($this->sslCertificate, $this->sslKey, $this->sslKeyPass);
+        $request->setSslCertificate($this->sslCertificate, $this->sslKey, $this->sslKeyPass, $this->strictSSL);
         return $request;
     }
 }

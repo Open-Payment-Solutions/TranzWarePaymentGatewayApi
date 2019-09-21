@@ -17,6 +17,7 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
 
     /**
      * TranzWarePaymentGatewayHTTPClient constructor.
+     *
      * @param string $url
      * @param null $body
      * @param null $ssl
@@ -27,7 +28,7 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
         $url,
         $body = null,
         $ssl = null,
-        $strictSSL = false
+        $strictSSL = true
     )
     {
         $this->url = $url;
@@ -73,8 +74,8 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
             $sslCertPass = $this->ssl['certPass'];
             curl_setopt($ch, CURLOPT_SSLCERT, $sslCert);
             curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $sslCertPass);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $this->strictSSL ? 1 : 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->strictSSL ? 1 : 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (bool)$this->strictSSL ? 1 : 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (bool)$this->strictSSL ? 1 : 0);
         }
 
         if ($this->debug) {
