@@ -27,7 +27,7 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
         $url,
         $body = null,
         $ssl = null,
-        $strictSSL = true
+        $strictSSL = false
     )
     {
         $this->url = $url;
@@ -59,10 +59,6 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
         curl_setopt($ch, CURLOPT_URL, $this->url);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_VERBOSE, $this->debug);
-        if (!$this->strictSSL) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        }
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
@@ -77,6 +73,8 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
             $sslCertPass = $this->ssl['certPass'];
             curl_setopt($ch, CURLOPT_SSLCERT, $sslCert);
             curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $sslCertPass);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $this->strictSSL ? 1 : 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->strictSSL ? 1 : 0);
         }
 
         if ($this->debug) {
