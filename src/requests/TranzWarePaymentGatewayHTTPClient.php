@@ -3,6 +3,7 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
  * Class TranzWarePaymentGatewayHTTPClient
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
 class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPClientInterface
@@ -19,18 +20,16 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
      * TranzWarePaymentGatewayHTTPClient constructor.
      *
      * @param string $url
-     * @param null $body
-     * @param null $ssl
-     * @param bool $strictSSL
+     * @param null   $body
+     * @param null   $ssl
+     * @param bool   $strictSSL
      */
-    public function __construct
-    (
+    public function __construct(
         $url,
         $body = null,
         $ssl = null,
         $strictSSL = true
-    )
-    {
+    ) {
         $this->url = $url;
         $this->body = $body;
         $this->ssl = $ssl;
@@ -44,9 +43,11 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
      */
     final public function setDebugToFile($path_to_file)
     {
-        $this->debug = true;
-        $this->debugToFile = $path_to_file;
-        $this->debugFileDescriptor = fopen($path_to_file, 'w+');
+        if (is_string($path_to_file)) {
+            $this->debug = true;
+            $this->debugToFile = $path_to_file;
+            $this->debugFileDescriptor = fopen($path_to_file, 'w+');
+        }
     }
 
     /**
@@ -63,19 +64,24 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/xml',
-            'Content-Length: '.strlen($this->body)
-        ]);
+        curl_setopt(
+            $ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/xml',
+                'Content-Length: '.strlen($this->body)
+            ]
+        );
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
 
         if ($this->ssl) {
             $sslCert = $this->ssl['cert'];
-            $sslCertPass = $this->ssl['certPass'];
+            $sslKeyPass = isset($this->ssl['keyPass']) ? $this->ssl['keyPass'] : '';
+            var_dump($this->ssl);
             curl_setopt($ch, CURLOPT_SSLCERT, $sslCert);
-            curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $sslCertPass);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (bool)$this->strictSSL ? 1 : 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (bool)$this->strictSSL ? 1 : 0);
+            if ($sslKeyPass) {
+                curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $sslKeyPass);
+            }
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (bool)$this->strictSSL ? 2 : 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (bool)$this->strictSSL);
         }
 
         if ($this->debug) {

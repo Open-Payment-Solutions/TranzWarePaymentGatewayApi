@@ -4,6 +4,7 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
  * Class TranzWarePaymentGatewayOrderStatusRequestResult
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
 class TranzWarePaymentGatewayOrderStatusRequestResult implements TranzWarePaymentGatewayRequestResultInterface

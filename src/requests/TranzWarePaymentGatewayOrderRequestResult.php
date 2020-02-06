@@ -4,6 +4,7 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
  * Class TranzWarePaymentGatewayOrderRequestResult
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
 class TranzWarePaymentGatewayOrderRequestResult implements TranzWarePaymentGatewayRequestResultInterface
@@ -48,8 +49,9 @@ class TranzWarePaymentGatewayOrderRequestResult implements TranzWarePaymentGatew
                 'URL' => $order->URL,
                 'OrderId' => $order->OrderID,
                 'SessionId' => $order->SessionID,
-                'PaymentUrl' => $order->URL . '?' . 'ORDERID=' . $order->OrderID . '&' . 'SESSIONID=' .
-                                $order->SessionID
+                'PaymentUrl' => $order->URL . '?' .
+                                'ORDERID=' . $order->OrderID . '&' .
+                                'SESSIONID=' . $order->SessionID
             ];
         }
     }

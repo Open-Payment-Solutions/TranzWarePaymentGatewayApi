@@ -26,6 +26,7 @@ use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatew
  *  $orderRequest = $requestFactory->createOrderRequest(1, 'USD', 'TEST PAYMENT #1'); // --> instance of TranzWarePaymentGatewayRequestInterface
  *
  * Class TranzWarePaymentGatewayRequestFactory
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway
  */
 class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRequestFactoryInterface
@@ -38,14 +39,13 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
      * @param string $ON_ORDER_APPROVED_URL
      * @param string $ON_ORDER_DECLINED_URL
      * @param string $ON_ORDER_CANCELED_URL
-     * @param string $LANG
+     * @param string $LANG (optional)
      */
     public function __construct(
         $GATEWAY_URL, $MERCHANT_ID,
         $ON_ORDER_APPROVED_URL, $ON_ORDER_DECLINED_URL, $ON_ORDER_CANCELED_URL,
         $LANG = 'EN'
-    )
-    {
+    ) {
         $this->MERCHANT_ID = $MERCHANT_ID;
         $this->LANG = $LANG;
         $urlProvider = new TranzWarePaymentGatewayUrls();
@@ -62,10 +62,10 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
     /**
      * Setting certificate, key file, key pass (default: ''), strict mode (default: enabled)
      *
-     * @param string $certFile  Path to certificate
-     * @param string $keyFile   Path to private key
-     * @param string $keyPass   Password provided in creation of private key
-     * @param bool|null $strictSSL Enables or disables SSL host verification (default: enabled)
+     * @param string    $certFile  Path to certificate
+     * @param string    $keyFile   Path to private key
+     * @param string    $keyPass   (optional) Password provided in creation of private key
+     * @param bool|null $strictSSL (optional) Enables or disables SSL host verification (default: enabled)
      *
      * @return TranzWarePaymentGatewayRequestFactory
      */
@@ -153,10 +153,10 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
     }
 
     /**
-     * @param float  $amount
-     * @param string $currency
-     * @param string $description
-     * @param string{OrderTypes::PURCHASE, OrderTypes::PRE_AUTH} $orderType
+     * @param float                                              $amount
+     * @param string                                             $currency
+     * @param string                                             (optional) $description
+     * @param string{OrderTypes::PURCHASE, OrderTypes::PRE_AUTH} (optional) $orderType
      *
      * @return TranzWarePaymentGatewayOrderRequest
      */
@@ -182,7 +182,7 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
     /**
      * @param float  $amount
      * @param string $currency
-     * @param string $description
+     * @param string $description (optional)
      *
      * @return TranzWarePaymentGatewayOrderRequest
      */
@@ -194,7 +194,7 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
     /**
      * @param float  $amount
      * @param string $currency
-     * @param string $description
+     * @param string $description (optional)
      *
      * @return TranzWarePaymentGatewayOrderRequest
      */

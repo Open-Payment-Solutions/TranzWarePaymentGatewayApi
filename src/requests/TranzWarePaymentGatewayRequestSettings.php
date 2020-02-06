@@ -2,7 +2,8 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
-trait TranzWarePaymentGatewayRequestSettings {
+trait TranzWarePaymentGatewayRequestSettings
+{
     private $strictSSL, $sslKey, $sslKeyPass, $sslCertificate;
 
     /**
@@ -10,8 +11,8 @@ trait TranzWarePaymentGatewayRequestSettings {
      *
      * @param string $cert
      * @param string $key
-     * @param string $keyPass
-     * @param bool $strictSSL
+     * @param string $keyPass   (optional)
+     * @param bool   $strictSSL (optional)
      *
      * @return void
      */
@@ -33,7 +34,7 @@ trait TranzWarePaymentGatewayRequestSettings {
      *
      * @return void
      */
-    final public function setStrictSSL($enable)
+    final public function setStrictSSL($enable = true)
     {
         $this->strictSSL = $enable;
     }

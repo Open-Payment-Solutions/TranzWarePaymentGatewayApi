@@ -7,6 +7,7 @@ use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatew
 
 /**
  * Class TranzWarePaymentGatewayOrderRequest
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
 class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequestInterface
@@ -19,26 +20,29 @@ class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequ
     /**
      * TranzWarePaymentGatewayOrderRequest constructor.
      *
-     * @param string $requestUrl
-     * @param string $approvalUrl
-     * @param string $declineUrl
-     * @param string $cancelUrl
+     * @param string                                             $requestUrl
+     * @param string                                             $approvalUrl
+     * @param string                                             $declineUrl
+     * @param string                                             $cancelUrl
      * @param string{OrderTypes::PURCHASE, OrderTypes::PRE_AUTH} $orderType
-     * @param string $merchantId
-     * @param float  $amount
-     * @param string $currency
-     * @param string $description
-     * @param string $lang
-     * @param string $debugToFile
+     * @param string                                             $merchantId
+     * @param float                                              $amount
+     * @param string                                             $currency
+     * @param string                                             $description
+     * @param string                                             $lang
+     * @param string                                             $debugToFile
      */
     public function __construct(
         $requestUrl, $approvalUrl, $declineUrl, $cancelUrl,
         $orderType, $merchantId, $amount, $currency,
         $description = '', $lang = 'EN', $debugToFile = null
-    )
-    {
+    ) {
         $this->requestAttributes =
-            compact('requestUrl', 'approvalUrl', 'declineUrl', 'cancelUrl', 'orderType', 'merchantId', 'amount', 'currency', 'description', 'lang');
+            compact(
+                'requestUrl', 'approvalUrl', 'declineUrl', 'cancelUrl',
+                'orderType', 'merchantId', 'amount', 'currency',
+                'description', 'lang'
+            );
         $this->debugToFile = $debugToFile;
     }
 
@@ -49,8 +53,12 @@ class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequ
             'keyPass' => $this->sslKeyPass,
             'cert' => $this->sslCertificate
         ];
-        $httpClient =
-            new TranzWarePaymentGatewayHTTPClient($this->requestAttributes['requestUrl'], $this->getRequestBody(), $ssl, $this->strictSSL);
+        $httpClient = new TranzWarePaymentGatewayHTTPClient(
+            $this->requestAttributes['requestUrl'],
+            $this->getRequestBody(),
+            $ssl,
+            $this->strictSSL
+        );
         if ($this->debugToFile) {
             $httpClient->setDebugToFile($this->debugToFile);
         }

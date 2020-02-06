@@ -11,6 +11,7 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway;
  *  print $gatewayUrls->getGatewayUrl(); // --> https://twpg/url/here
  *
  * Class TranzWarePaymentGatewayUrls
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway
  */
 class TranzWarePaymentGatewayUrls implements TranzWarePaymentGatewayUrlProviderInterface

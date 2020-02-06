@@ -6,6 +6,7 @@ use \OpenPaymentSolutions\TranzWarePaymentGateway\Handlers\TranzWarePaymentGatew
 
 /**
  * Class TranzWarePaymentGatewayHandlerFactory
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway
  */
 class TranzWarePaymentGatewayHandlerFactory implements TranzWarePaymentGatewayHandlerFactoryInterface

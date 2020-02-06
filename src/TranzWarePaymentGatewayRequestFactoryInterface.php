@@ -6,6 +6,7 @@ use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatew
 
 /**
  * Interface TranzWarePaymentGatewayRequestFactoryInterface
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway
  */
 interface TranzWarePaymentGatewayRequestFactoryInterface
@@ -18,7 +19,7 @@ interface TranzWarePaymentGatewayRequestFactoryInterface
      * @param string $ON_ORDER_APPROVED_URL
      * @param string $ON_ORDER_DECLINED_URL
      * @param string $ON_ORDER_CANCELED_URL
-     * @param string $LANG
+     * @param string $LANG (optional)
      */
     public function __construct(
         $GATEWAY_URL, $MERCHANT_ID,
@@ -29,15 +30,15 @@ interface TranzWarePaymentGatewayRequestFactoryInterface
     /**
      * Sets verbose mode in requests and file to output
      *
-     * @param string$path_to_file
+     * @param  string $path_to_file
      * @return void
      */
     public function setDebugFile($path_to_file);
 
     /**
-     * @param float  $amount
-     * @param string $currency
-     * @param string $description
+     * @param float                                              $amount
+     * @param string                                             $currency
+     * @param string                                             $description
      * @param string{OrderTypes::PURCHASE, OrderTypes::PRE_AUTH} $orderType
      *
      * @return TranzWarePaymentGatewayRequestInterface

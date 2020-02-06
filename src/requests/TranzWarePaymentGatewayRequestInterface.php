@@ -4,6 +4,7 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
  * Interface TranzWarePaymentGatewayRequestInterface
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
 interface TranzWarePaymentGatewayRequestInterface
@@ -21,8 +22,8 @@ interface TranzWarePaymentGatewayRequestInterface
      *
      * @param string $cert
      * @param string $key
-     * @param string $keyPass
-     * @param bool $strictSSL
+     * @param string $keyPass   (optional)
+     * @param bool   $strictSSL (optional)
      *
      * @return void
      */

@@ -4,6 +4,7 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
 /**
  * Interface TranzWarePaymentGatewayUrlProviderInterface
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway
  */
 interface TranzWarePaymentGatewayUrlProviderInterface

@@ -6,6 +6,7 @@ use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatew
 
 /**
  * Class TranzWarePaymentGatewayOrderStatusRequest
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
 class TranzWarePaymentGatewayOrderStatusRequest implements TranzWarePaymentGatewayRequestInterface
@@ -22,10 +23,13 @@ class TranzWarePaymentGatewayOrderStatusRequest implements TranzWarePaymentGatew
      * @param string $requestUrl
      * @param string $orderId
      * @param string $sessionId
-     * @param string $lang
+     * @param string $lang (optional)
+     * @param string $debugToFile (optional)
      */
-    public function __construct($requestUrl, $merchantId, $orderId, $sessionId, $lang = 'EN', $debugToFile)
-    {
+    public function __construct(
+        $requestUrl, $merchantId, $orderId, $sessionId,
+        $lang = 'EN', $debugToFile = null
+    ) {
         $this->requestAttributes =
             compact('merchantId', 'requestUrl', 'orderId', 'sessionId', 'lang');
         $this->debugToFile = $debugToFile;
@@ -38,8 +42,12 @@ class TranzWarePaymentGatewayOrderStatusRequest implements TranzWarePaymentGatew
             'keyPass' => $this->sslKeyPass,
             'cert' => $this->sslCertificate
         ];
-        $httpClient =
-            new TranzWarePaymentGatewayHTTPClient($this->requestAttributes['requestUrl'], $this->getRequestBody(), $ssl, $this->strictSSL);
+        $httpClient = new TranzWarePaymentGatewayHTTPClient(
+            $this->requestAttributes['requestUrl'],
+            $this->getRequestBody(),
+            $ssl,
+            $this->strictSSL
+        );
         if ($this->debugToFile) {
             $httpClient->setDebugToFile($this->debugToFile);
         }

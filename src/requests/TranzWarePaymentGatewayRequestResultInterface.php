@@ -4,6 +4,7 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
  * Interface TranzWarePaymentGatewayRequestResultInterface
+ *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
 interface TranzWarePaymentGatewayRequestResultInterface
