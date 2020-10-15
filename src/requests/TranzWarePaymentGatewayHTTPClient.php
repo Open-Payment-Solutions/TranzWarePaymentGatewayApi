@@ -73,12 +73,20 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
 
         if ($this->ssl) {
-            $sslCert = $this->ssl['cert'];
-            $sslKeyPass = isset($this->ssl['keyPass']) ? $this->ssl['keyPass'] : '';
-            curl_setopt($ch, CURLOPT_SSLCERT, $sslCert);
-            if ($sslKeyPass) {
-                curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $sslKeyPass);
+            curl_setopt($ch, CURLOPT_SSLCERT, $this->ssl['cert']);
+            curl_setopt($ch, CURLOPT_SSLKEY, $this->ssl['key']);
+
+            if (isset($this->ssl['keyPass'])) {
+                curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $this->ssl['keyPass']);
             }
+
+            if (isset($this->ssl['ca'])) {
+              $sslCAPath = $this->ssl['ca']['path'];
+              $sslCAFile = $this->ssl['ca']['file'];
+              curl_setopt($ch, CURLOPT_CAPATH, $sslCAPath);
+              curl_setopt($ch, CURLOPT_CAINFO, $sslCAFile);
+            }
+
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (bool)$this->strictSSL ? 2 : 0);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (bool)$this->strictSSL);
         }

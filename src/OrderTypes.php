@@ -2,7 +2,7 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
-use Jawira\CaseConverter\CaseConverterException;
+use \Jawira\CaseConverter\CaseConverterException;
 use \Jawira\CaseConverter\Convert;
 
 class OrderTypes

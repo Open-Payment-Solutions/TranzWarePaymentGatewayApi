@@ -24,9 +24,11 @@ $requestFactory
     ->setCertificate($certFile, $keyFile, $keyPass)
     ->disableSSLVerification() // for dev environment or if no need to validate SSL host
     ->setDebugFile(__DIR__.'/debug.log');
+
 $orderRequest = $requestFactory->createOrderRequest(1, CurrencyCodes::USD, 'TEST PAYMENT $0.01', OrderTypes::PURCHASE);
 /**
- * or shorthand:
+ * or shorthands:
+ * $orderRequest = $requestFactory->createOrderRequest(1, CurrencyCodes::USD, 'TEST PAYMENT $0.01');
  * $orderRequest = $requestFactory->createPurchaseOrderRequest(1, CurrencyCodes::USD, 'TEST PAYMENT $0.01');
  */
 $orderRequestResult = $orderRequest->execute();

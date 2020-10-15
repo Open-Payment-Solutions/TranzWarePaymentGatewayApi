@@ -1,6 +1,6 @@
 {
   "name": "open-payment-solutions/tranzware-payment-gateway",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "description": "Library for working with TranzWare Payment Gateway",
   "type": "library",
   "license": "MIT",
