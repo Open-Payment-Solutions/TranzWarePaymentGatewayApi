@@ -1,6 +1,5 @@
 {
   "name": "open-payment-solutions/tranzware-payment-gateway",
-  "version": "1.2.1",
   "description": "Library for working with TranzWare Payment Gateway",
   "type": "library",
   "license": "MIT",
@@ -21,7 +20,7 @@
     "ext-curl": "*",
     "ext-json": "*",
     "ext-simplexml": "*",
-    "jawira/case-converter": ">=3.3.3",
+    "jawira/case-converter": "^3.4.6",
     "squizlabs/php_codesniffer": "^3.5"
   },
   "scripts": {
