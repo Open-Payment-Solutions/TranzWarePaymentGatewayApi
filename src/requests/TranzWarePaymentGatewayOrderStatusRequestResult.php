@@ -85,7 +85,7 @@ class TranzWarePaymentGatewayOrderStatusRequestResult implements TranzWarePaymen
 
     final public function getDetails()
     {
-      return $this->status;
+      return $this->details;
     }
 
     final public function getData()
