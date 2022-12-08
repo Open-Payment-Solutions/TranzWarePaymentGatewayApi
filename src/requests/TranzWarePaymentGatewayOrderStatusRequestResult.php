@@ -2,6 +2,8 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
+use \Exception;
+
 /**
  * Class TranzWarePaymentGatewayOrderStatusRequestResult
  *
@@ -12,13 +14,16 @@ class TranzWarePaymentGatewayOrderStatusRequestResult implements TranzWarePaymen
     private $httpStatus;
     private $responseBody;
     private $status;
+    private $details;
     private $data;
 
-    /**
-     * TranzWarePaymentGatewayOrderStatusRequestResult constructor.
-     *
-     * @param TranzWarePaymentGatewayHTTPClientResultInterface $HTTPClientResult
-     */
+  /**
+   * TranzWarePaymentGatewayOrderStatusRequestResult constructor.
+   *
+   * @param TranzWarePaymentGatewayHTTPClientResultInterface $HTTPClientResult
+   *
+   * @throws Exception
+   */
     public function __construct(TranzWarePaymentGatewayHTTPClientResultInterface $HTTPClientResult)
     {
         $this->responseBody = $HTTPClientResult->getOutput();
@@ -42,9 +47,19 @@ class TranzWarePaymentGatewayOrderStatusRequestResult implements TranzWarePaymen
         $response = $this->data->Response;
         $order = $response->Order;
         $this->status = $response->Status;
+        $this->details = isset($response->Details) ? $response->Details : '';
+
+        if (!isset($order->OrderStatus) && !isset($order->OrderID)) {
+          if ($this->details) {
+            throw new Exception($this->details);
+          }
+
+          throw new Exception('Unhandled situation. Please inform about it by opening issue in repository. XML Body: '.$this->responseBody);
+        }
+
         $this->data = [
-            'OrderId'       => $order->OrderID,
-            'OrderStatus'   => $order->OrderStatus
+            'OrderId'       => isset($order->OrderId) ? $order->OrderId : null,
+            'OrderStatus'   => isset($order->OrderStatus) ? $order->OrderStatus : null
         ];
     }
 
@@ -66,6 +81,11 @@ class TranzWarePaymentGatewayOrderStatusRequestResult implements TranzWarePaymen
     final public function getStatus()
     {
         return $this->status;
+    }
+
+    final public function getDetails()
+    {
+      return $this->status;
     }
 
     final public function getData()

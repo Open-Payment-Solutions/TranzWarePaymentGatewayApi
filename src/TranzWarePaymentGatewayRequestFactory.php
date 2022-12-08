@@ -2,6 +2,7 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
+use \Exception;
 use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatewayOrderRequest;
 use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatewayOrderStatusRequest;
 
@@ -155,8 +156,8 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
     /**
      * @param float                                              $amount
      * @param string                                             $currency
-     * @param string                                             (optional) $description
-     * @param string{OrderTypes::PURCHASE, OrderTypes::PRE_AUTH} (optional) $orderType
+     * @param string                                             $description (optional)
+     * @param string{OrderTypes::PURCHASE, OrderTypes::PRE_AUTH} $orderType   (optional)
      *
      * @return TranzWarePaymentGatewayOrderRequest
      */
@@ -203,14 +204,23 @@ class TranzWarePaymentGatewayRequestFactory implements TranzWarePaymentGatewayRe
         return $this->createOrderRequest($amount, $currency, $description, OrderTypes::PURCHASE);
     }
 
-    /**
-     * @param string $orderId
-     * @param string $sessionId
-     *
-     * @return TranzWarePaymentGatewayOrderStatusRequest
-     */
+  /**
+   * @param string $orderId
+   * @param string $sessionId
+   *
+   * @return TranzWarePaymentGatewayOrderStatusRequest
+   * @throws Exception
+   */
     final public function createOrderStatusRequest($orderId, $sessionId)
     {
+        if (!$orderId) {
+          throw new Exception('Empty OrderID');
+        }
+
+        if (!$sessionId) {
+          throw new Exception('Empty SessionID');
+        }
+
         $request = new TranzWarePaymentGatewayOrderStatusRequest(
             $this->getUrlProvider()->getGatewayUrl(),
             $this->MERCHANT_ID,
