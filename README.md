@@ -23,4 +23,12 @@ See [samples](samples) folder
 
 ---
 
+**Forks:**
+
+Laravel integration (by [Abdulfattah Alselwi](https://github.com/Ab-Alselwi))
+
+https://github.com/Ab-Alselwi/tranzware-payment-gateway
+
+---
+
 [Integration manual (in Russian language)](docs/Integration_Instruction_TWEC_PG.pdf)
