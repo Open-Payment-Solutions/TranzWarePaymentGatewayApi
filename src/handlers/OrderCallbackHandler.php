@@ -5,11 +5,11 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Handlers;
 /**
  * Class that handles request from TWPG after approved/canceled/declined order creation on TWPG site
  *
- * Class TranzWarePaymentGatewayOrderCallbackHandler
+ * Class OrderCallbackHandler
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Handlers
  */
-class TranzWarePaymentGatewayOrderCallbackHandler implements TranzWarePaymentGatewayHandlerInterface
+class OrderCallbackHandler implements HandlerInterface
 {
     /**
      * Handles callback request and returns array of DatTime, OrderId, Amount, Currency, OrderStatus values

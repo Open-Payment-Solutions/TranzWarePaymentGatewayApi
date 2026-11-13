@@ -2,11 +2,11 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
- * Class TranzWarePaymentGatewayHTTPClient
+ * Class HTTPClient
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
-class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPClientInterface
+class HTTPClient implements HTTPClientInterface
 {
     protected $url;
     protected $body;
@@ -17,7 +17,7 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
     protected $debugFileDescriptor;
 
     /**
-     * TranzWarePaymentGatewayHTTPClient constructor.
+     * HTTPClient constructor.
      *
      * @param string $url
      * @param null   $body
@@ -53,7 +53,7 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
     /**
      * Executes request and returns instance of result object
      *
-     * @return TranzWarePaymentGatewayHTTPClientResult
+     * @return HTTPClientResult
      */
     final public function execute()
     {
@@ -105,7 +105,7 @@ class TranzWarePaymentGatewayHTTPClient implements TranzWarePaymentGatewayHTTPCl
             fputs($this->debugFileDescriptor, "OUTPUT: \n" . var_export($output, true));
         }
 
-        return new TranzWarePaymentGatewayHTTPClientResult(
+        return new HTTPClientResult(
             $output,
             $info
         );

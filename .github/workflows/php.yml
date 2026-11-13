@@ -2,9 +2,9 @@ name: PHP CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main, v1.2.3 ]
   pull_request:
-    branches: [ master ]
+    branches: [ main, v1.2.3 ]
 
 jobs:
   build:

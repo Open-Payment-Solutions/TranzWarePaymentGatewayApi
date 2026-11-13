@@ -1,9 +1,9 @@
 <?php
 require_once('vendor/autoload.php');
 
-use \OpenPaymentSolutions\TranzWarePaymentGateway\TranzWarePaymentGatewayHandlerFactory;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\HandlerFactory;
 
-$handlerFactory = new TranzWarePaymentGatewayHandlerFactory();
+$handlerFactory = new HandlerFactory();
 $orderCallbackHandler = $handlerFactory->createOrderCallbackHandler();
 
 $orderStatusData = $orderCallbackHandler->handle();

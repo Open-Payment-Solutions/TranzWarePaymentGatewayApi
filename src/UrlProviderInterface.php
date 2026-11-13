@@ -3,11 +3,11 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
 /**
- * Interface TranzWarePaymentGatewayUrlProviderInterface
+ * Interface UrlProviderInterface
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway
  */
-interface TranzWarePaymentGatewayUrlProviderInterface
+interface UrlProviderInterface
 {
     /**
      * @param string $url

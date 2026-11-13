@@ -8,8 +8,8 @@ Thanks for being interested! Here's guidelines to contributing to package.
 
 ## Getting Your Hands Dirty
 - Fork the repository.
-- Create new branch from **master** or any branch on your fork (feel free to use any flow on your fork).
-- Put your pull requests to [master](https://github.com/num8er/TranzWarePaymentGatewayApi/tree/master) branch.
+- Create a new branch from **main** for the current edition. The **v1.2.3** branch preserves the previous edition.
+- Open pull requests against [main](https://github.com/Open-Payment-Solutions/TranzWarePaymentGatewayApi/tree/main).
 
 ## Submit!
 - Push your changes.

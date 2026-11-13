@@ -3,17 +3,17 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
- * Class TranzWarePaymentGatewayHTTPClientResult
+ * Class HTTPClientResult
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
-class TranzWarePaymentGatewayHTTPClientResult implements TranzWarePaymentGatewayHTTPClientResultInterface
+class HTTPClientResult implements HTTPClientResultInterface
 {
     private $info;
     private $output;
 
     /**
-     * TranzWarePaymentGatewayHTTPClientResult constructor.
+     * HTTPClientResult constructor.
      *
      * @param mixed $output
      * @param mixed $info

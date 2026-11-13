@@ -3,17 +3,17 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
- * Interface TranzWarePaymentGatewayRequestInterface
+ * Interface RequestInterface
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
-interface TranzWarePaymentGatewayRequestInterface
+interface RequestInterface
 {
     /**
      * Executes request and returns instance of
-     * class that implements TranzWarePaymentGatewayRequestResultInterface
+     * class that implements RequestResultInterface
      *
-     * @return TranzWarePaymentGatewayRequestResultInterface
+     * @return RequestResultInterface
      */
     public function execute();
 

@@ -6,15 +6,15 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway;
  * Class for storing urls required by TWPG
  *
  * Example:
- *  $gatewayUrls = new TranzWarePaymentGatewayUrls();
+ *  $gatewayUrls = new Urls();
  *  $gatewayUrls->setGatewayUrl('https://twpg/url/here');
  *  print $gatewayUrls->getGatewayUrl(); // --> https://twpg/url/here
  *
- * Class TranzWarePaymentGatewayUrls
+ * Class Urls
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway
  */
-class TranzWarePaymentGatewayUrls implements TranzWarePaymentGatewayUrlProviderInterface
+class Urls implements UrlProviderInterface
 {
     /**
      * @var string $GATEWAY_URL

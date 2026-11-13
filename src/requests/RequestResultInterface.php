@@ -3,18 +3,18 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
- * Interface TranzWarePaymentGatewayRequestResultInterface
+ * Interface RequestResultInterface
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
-interface TranzWarePaymentGatewayRequestResultInterface
+interface RequestResultInterface
 {
     /**
-     * TranzWarePaymentGatewayRequestResultInterface constructor.
+     * RequestResultInterface constructor.
      *
-     * @param TranzWarePaymentGatewayHTTPClientResultInterface $HTTPClientResult
+     * @param HTTPClientResultInterface $HTTPClientResult
      */
-    public function __construct(TranzWarePaymentGatewayHTTPClientResultInterface $HTTPClientResult);
+    public function __construct(HTTPClientResultInterface $HTTPClientResult);
 
     /**
      * Returns http status

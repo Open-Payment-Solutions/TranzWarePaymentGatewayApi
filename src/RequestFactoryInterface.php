@@ -2,17 +2,17 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
-use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatewayRequestInterface;
+use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\RequestInterface;
 
 /**
- * Interface TranzWarePaymentGatewayRequestFactoryInterface
+ * Interface RequestFactoryInterface
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway
  */
-interface TranzWarePaymentGatewayRequestFactoryInterface
+interface RequestFactoryInterface
 {
     /**
-     * TranzWarePaymentGatewayRequestFactoryInterface constructor.
+     * RequestFactoryInterface constructor.
      *
      * @param string $GATEWAY_URL
      * @param string $MERCHANT_ID
@@ -41,7 +41,7 @@ interface TranzWarePaymentGatewayRequestFactoryInterface
      * @param string                                             $description
      * @param string{OrderTypes::PURCHASE, OrderTypes::PRE_AUTH} $orderType
      *
-     * @return TranzWarePaymentGatewayRequestInterface
+     * @return RequestInterface
      */
     public function createOrderRequest($amount, $currency, $description = '', $orderType = OrderTypes::PURCHASE);
 
@@ -49,7 +49,7 @@ interface TranzWarePaymentGatewayRequestFactoryInterface
      * @param string $orderId
      * @param string $sessionId
      *
-     * @return TranzWarePaymentGatewayRequestInterface
+     * @return RequestInterface
      */
     public function createOrderStatusRequest($orderId, $sessionId);
 }

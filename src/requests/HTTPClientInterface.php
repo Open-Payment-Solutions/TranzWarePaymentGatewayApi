@@ -3,14 +3,14 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
- * Interface TranzWarePaymentGatewayHTTPClientInterface
+ * Interface HTTPClientInterface
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
-interface TranzWarePaymentGatewayHTTPClientInterface
+interface HTTPClientInterface
 {
     /**
-     * TranzWarePaymentGatewayHTTPClientInterface constructor.
+     * HTTPClientInterface constructor.
      *
      * @param string $url
      * @param null   $body
@@ -26,7 +26,7 @@ interface TranzWarePaymentGatewayHTTPClientInterface
     public function setDebugToFile($path_to_file);
 
     /**
-     * @return TranzWarePaymentGatewayHTTPClientResultInterface
+     * @return HTTPClientResultInterface
      */
     public function execute();
 }

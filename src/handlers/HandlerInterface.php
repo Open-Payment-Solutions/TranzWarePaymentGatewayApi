@@ -3,11 +3,11 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Handlers;
 
 /**
- * Interface TranzWarePaymentGatewayHandlerInterface
+ * Interface HandlerInterface
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Handlers
  */
-interface TranzWarePaymentGatewayHandlerInterface
+interface HandlerInterface
 {
     public function handle();
 }

@@ -3,14 +3,13 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 use \OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
-use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\TranzWarePaymentGatewayRequestSettings as RequestSettings;
 
 /**
- * Class TranzWarePaymentGatewayOrderRequest
+ * Class OrderRequest
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
-class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequestInterface
+class OrderRequest implements RequestInterface
 {
     use RequestSettings;
 
@@ -18,7 +17,7 @@ class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequ
     private $debugToFile = null;
 
     /**
-     * TranzWarePaymentGatewayOrderRequest constructor.
+     * OrderRequest constructor.
      *
      * @param string                                             $requestUrl
      * @param string                                             $approvalUrl
@@ -53,7 +52,7 @@ class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequ
             'keyPass' => $this->sslKeyPass,
             'cert' => $this->sslCertificate
         ];
-        $httpClient = new TranzWarePaymentGatewayHTTPClient(
+        $httpClient = new HTTPClient(
             $this->requestAttributes['requestUrl'],
             $this->getRequestBody(),
             $ssl,
@@ -62,10 +61,10 @@ class TranzWarePaymentGatewayOrderRequest implements TranzWarePaymentGatewayRequ
         if ($this->debugToFile) {
             $httpClient->setDebugToFile($this->debugToFile);
         }
-        return new TranzWarePaymentGatewayOrderRequestResult($httpClient->execute());
+        return new OrderRequestResult($httpClient->execute());
     }
 
-    final private function getRequestBody()
+    private function getRequestBody()
     {
         $orderType = OrderTypes::fromString($this->requestAttributes['orderType']);
         $templateFile = __DIR__ . '/templates/'.$orderType.'OrderRequestBodyTemplate.xml';

@@ -2,29 +2,24 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
-use \Exception;
-
 /**
- * Class TranzWarePaymentGatewayOrderStatusRequestResult
+ * Class OrderRequestResult
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
-class TranzWarePaymentGatewayOrderStatusRequestResult implements TranzWarePaymentGatewayRequestResultInterface
+class OrderRequestResult implements RequestResultInterface
 {
     private $httpStatus;
     private $responseBody;
     private $status;
-    private $details;
     private $data;
 
-  /**
-   * TranzWarePaymentGatewayOrderStatusRequestResult constructor.
-   *
-   * @param TranzWarePaymentGatewayHTTPClientResultInterface $HTTPClientResult
-   *
-   * @throws Exception
-   */
-    public function __construct(TranzWarePaymentGatewayHTTPClientResultInterface $HTTPClientResult)
+    /**
+     * OrderRequestResult constructor.
+     *
+     * @param HTTPClientResultInterface $HTTPClientResult
+     */
+    public function __construct(HTTPClientResultInterface $HTTPClientResult)
     {
         $this->responseBody = $HTTPClientResult->getOutput();
         $info = $HTTPClientResult->getInfo();
@@ -47,20 +42,18 @@ class TranzWarePaymentGatewayOrderStatusRequestResult implements TranzWarePaymen
         $response = $this->data->Response;
         $order = $response->Order;
         $this->status = $response->Status;
-        $this->details = isset($response->Details) ? $response->Details : '';
 
-        if (!isset($order->OrderStatus) && !isset($order->OrderID)) {
-          if ($this->details) {
-            throw new Exception($this->details);
-          }
-
-          throw new Exception('Unhandled situation. Please inform about it by opening issue in repository. XML Body: '.$this->responseBody);
+        $this->data = null;
+        if ($this->success()) {
+            $this->data = [
+                'URL' => $order->URL,
+                'OrderId' => $order->OrderID,
+                'SessionId' => $order->SessionID,
+                'PaymentUrl' => $order->URL . '?' .
+                                'ORDERID=' . $order->OrderID . '&' .
+                                'SESSIONID=' . $order->SessionID
+            ];
         }
-
-        $this->data = [
-            'OrderId'       => isset($order->OrderId) ? $order->OrderId : null,
-            'OrderStatus'   => isset($order->OrderStatus) ? $order->OrderStatus : null
-        ];
     }
 
     public function getHttpStatus()
@@ -75,17 +68,12 @@ class TranzWarePaymentGatewayOrderStatusRequestResult implements TranzWarePaymen
 
     final public function success()
     {
-        return $this->data['OrderStatus'] === 'APPROVED';
+        return $this->status === '00';
     }
 
     final public function getStatus()
     {
         return $this->status;
-    }
-
-    final public function getDetails()
-    {
-      return $this->details;
     }
 
     final public function getData()

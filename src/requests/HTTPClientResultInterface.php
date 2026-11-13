@@ -3,11 +3,11 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
- * Interface TranzWarePaymentGatewayHTTPClientResultInterface
+ * Interface HTTPClientResultInterface
  *
  * @package OpenPaymentSolutions\TranzWarePaymentGateway\Requests
  */
-interface TranzWarePaymentGatewayHTTPClientResultInterface
+interface HTTPClientResultInterface
 {
     public function __construct($output, $info);
 

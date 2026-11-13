@@ -2,7 +2,7 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
-trait TranzWarePaymentGatewayRequestSettings
+trait RequestSettings
 {
     private $strictSSL, $sslKey, $sslKeyPass, $sslCertificate;
 
