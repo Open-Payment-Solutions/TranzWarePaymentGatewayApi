@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.1
+
+- Fixed GitHub Actions failures caused by the retired `actions/cache@v2`, upgrading
+  to `actions/cache@v4`.
+- Updated `actions/checkout` from v2 to v4.
+- Updated the version file, installation instructions, and sample dependency
+  constraint to 1.3.1.
+
+No additional API changes from 1.3.0. The [1.3.0 breaking changes](#130) still
+apply when upgrading from 1.2.3.
+
 ## 1.3.0
 
 The new edition lives on `main`. Version is recorded in [VERSION](VERSION);

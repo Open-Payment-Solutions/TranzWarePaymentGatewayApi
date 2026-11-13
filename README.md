@@ -3,13 +3,13 @@
 PHP library for creating orders, checking order status, and parsing callbacks from
 the Compass Plus TranzWare Payment Gateway (also known as TWEC PG).
 
-The new edition is **1.3.0** on `main`. The previous edition is preserved on the
+The new edition is **1.3.1** on `main`. The previous edition is preserved on the
 `v1.2.3` branch (formerly `master`); its latest release tag is `1.2.3`.
 
 ## Installation
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.3.0"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.3.1"
 ```
 
 PHP with cURL, JSON, and SimpleXML is required. Your bank must provide the gateway
