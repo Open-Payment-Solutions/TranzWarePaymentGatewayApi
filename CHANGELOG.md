@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.5.4
+
+- Require a nonempty, tracked `composer.lock` and enabled lockfile support before
+  dependency installation in CI and release validation.
+- Explicitly validate lockfile freshness, disable validation hooks, and reject
+  changes to `composer.json` or `composer.lock` during installation.
+- Extend workflow security checks to prevent dependency updates in CI and require
+  lockfile validation before installation.
+- Update installation instructions and sample dependencies to 1.5.4.
+
 ## 1.5.3
 
 - Pin setup-php 2.40.0 and checkout 7.0.1 to full commit SHAs. The setup-php

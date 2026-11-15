@@ -33,10 +33,16 @@ jobs:
         coverage: xdebug
 
     - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+      run: |
+        test -s composer.lock
+        git ls-files --error-unmatch composer.lock
+        test "$(composer config lock --no-plugins --no-scripts)" = true
+        composer validate --strict --check-lock --no-plugins --no-scripts
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-plugins --no-scripts
+    - name: Install locked dependencies
+      run: |
+        composer install --prefer-dist --no-progress --no-interaction --no-plugins --no-scripts
+        git diff --exit-code -- composer.json composer.lock
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md

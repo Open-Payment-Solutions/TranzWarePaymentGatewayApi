@@ -47,8 +47,16 @@ jobs:
           php-version: '8.2'
           extensions: curl, json, mbstring, simplexml
           coverage: none
-      - run: composer validate --strict
-      - run: composer install --prefer-dist --no-progress --no-plugins --no-scripts
+      - name: Validate composer.json and composer.lock
+        run: |
+          test -s composer.lock
+          git ls-files --error-unmatch composer.lock
+          test "$(composer config lock --no-plugins --no-scripts)" = true
+          composer validate --strict --check-lock --no-plugins --no-scripts
+      - name: Install locked dependencies
+        run: |
+          composer install --prefer-dist --no-progress --no-interaction --no-plugins --no-scripts
+          git diff --exit-code -- composer.json composer.lock
       - run: composer lint
       - run: composer test
 

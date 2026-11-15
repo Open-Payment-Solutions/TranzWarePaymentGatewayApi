@@ -15,6 +15,7 @@ workflows = Dir['.github/workflows/*.{yml,yaml}'].to_h do |path|
     errors << "#{location}: excessive token permissions" unless permissions == { 'contents' => expected }
     errors << "#{location}: use an isolated GitHub-hosted runner" unless job['runs-on'] == 'ubuntu-latest'
 
+    lock_validated = false
     job.fetch('steps').each do |step|
       if step['uses']
         errors << "#{location}: action must use a full commit SHA" unless step['uses'].match?(%r{\A[^@]+@[0-9a-f]{40}\z})
@@ -22,9 +23,24 @@ workflows = Dir['.github/workflows/*.{yml,yaml}'].to_h do |path|
           errors << "#{location}: checkout must not persist credentials"
         end
       end
-      if step['run']&.include?('composer install') &&
-          !%w[--no-plugins --no-scripts].all? { |flag| step['run'].include?(flag) }
-        errors << "#{location}: disable dependency install hooks"
+      command = step.fetch('run', '')
+      if command.include?('composer validate')
+        lock_validated = [
+          'test -s composer.lock',
+          'git ls-files --error-unmatch composer.lock',
+          'test "$(composer config lock --no-plugins --no-scripts)" = true',
+          'composer validate --strict --check-lock --no-plugins --no-scripts'
+        ].all? { |check| command.include?(check) }
+      end
+      errors << "#{location}: dependency updates must be reviewed outside CI" if command.include?('composer update')
+      if command.include?('composer install')
+        errors << "#{location}: validate a committed lockfile before installation" unless lock_validated
+        unless %w[--no-plugins --no-scripts].all? { |flag| command.include?(flag) }
+          errors << "#{location}: disable dependency install hooks"
+        end
+        unless command.include?('git diff --exit-code -- composer.json composer.lock')
+          errors << "#{location}: verify dependency files are unchanged after installation"
+        end
       end
       step.fetch('env', {}).each_value do |value|
         if value.to_s.include?('secrets.') &&
