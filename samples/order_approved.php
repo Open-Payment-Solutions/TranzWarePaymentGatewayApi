@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Parse the approval callback and handle invalid callback data.
+ */
+
 $autoloadFile = __DIR__ . '/vendor/autoload.php';
 require_once is_file($autoloadFile) ? $autoloadFile : __DIR__ . '/../vendor/autoload.php';
 

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Create a purchase order and display its payment link.
+ */
+
 $autoloadFile = __DIR__ . '/vendor/autoload.php';
 require_once is_file($autoloadFile) ? $autoloadFile : __DIR__ . '/../vendor/autoload.php';
 
@@ -32,7 +36,7 @@ try {
         OrderTypes::PURCHASE
     );
     /**
-     * or shorthands:
+     * Or shorthands:
      * $orderRequest = $requestFactory->createOrderRequest(1, CurrencyCodes::USD, 'TEST PAYMENT $0.01');
      * $orderRequest = $requestFactory->createOrderPurchaseRequest(1, CurrencyCodes::USD, 'TEST PAYMENT $0.01');
      */
@@ -40,7 +44,7 @@ try {
 
     if ($orderRequestResult->getHttpStatus() === 200 && $orderRequestResult->success()) {
         $orderData = $orderRequestResult->getData();
-        echo '<a href="' . htmlspecialchars($orderData['PaymentUrl'], ENT_QUOTES, 'UTF-8') . '">LINK TO PAYMENT</a>';
+        echo '<a href="' . htmlspecialchars($orderData->paymentUrl, ENT_QUOTES, 'UTF-8') . '">LINK TO PAYMENT</a>';
         exit(0);
     }
 

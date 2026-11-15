@@ -1,4 +1,4 @@
-# Integration guide — 1.4.1
+# Integration guide — 1.5.0
 
 This guide uses the shortened API names introduced in 1.3.0 on `main`.
 For the original names, use [edition 1.2.3](../README.md#using-the-previous-edition-123).
@@ -7,7 +7,7 @@ When upgrading, follow the [migration instructions](../CHANGELOG.md#130).
 ## Install
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.4.1"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.5.0"
 ```
 
 Enable PHP's cURL, JSON, and SimpleXML extensions. Obtain your merchant ID,
@@ -94,9 +94,9 @@ if ($result->getHttpStatus() !== 200 || !$result->success()) {
 }
 
 $order = $result->getData();
-// Persist $order['OrderId'] and $order['SessionId'] with your checkout here,
-// before redirecting. Keep SessionId on your server.
-header('Location: ' . $order['PaymentUrl'], true, 303);
+// Persist $order->orderId and $order->sessionId with your checkout here,
+// before redirecting. Keep the session ID on your server.
+header('Location: ' . $order->paymentUrl, true, 303);
 exit;
 ```
 
@@ -106,8 +106,8 @@ AZN, RUB, and SDG). Use `CurrencyCodes::fromString('usd')` to parse a name or
 numeric code, and `CurrencyCodes::USD->value` for the gateway string. Request
 values are XML-escaped automatically; pass original text without pre-escaping it.
 
-On successful creation, `getData()` contains `URL`, `OrderId`, `SessionId`, and
-`PaymentUrl`. `success()` here means the gateway accepted the **creation** request
+On successful creation, `getData()` returns `Data\OrderData` with readonly
+`url`, `orderId`, `sessionId`, and `paymentUrl` properties, plus `__unparsed`. `success()` here means the gateway accepted the **creation** request
 (gateway status `00`); it does not mean the customer has paid.
 
 For preauthorization, use the same configured factory:
@@ -139,8 +139,10 @@ package does not provide capture, refund, or cancellation request methods.
 ## Handle the return and check status
 
 `HandlerFactory` creates a parser for the gateway's `xmlmsg` request parameter.
-It accepts raw XML or base64-encoded XML and returns `DateTime`, `OrderId`,
-`Amount`, `Currency`, `OrderStatus`, and the original `xmlmsg`. Missing or empty
+It accepts raw XML or base64-encoded XML and returns a `Data\OrderCallbackData`
+object with `dateTime`, `orderId`, `amount`, `currency`, `orderStatus`, and
+`xmlMessage` properties. `xmlMessage` contains the original request value.
+Additional gateway fields are retained in `__unparsed`. Missing or empty
 messages throw `Exceptions\EmptyXMLMessage`; invalid XML, incomplete callbacks,
 and non-string messages throw `Exceptions\InvalidXMLMessage`. The handler reads `$_REQUEST`; it parses data without authenticating the
 sender or verifying a payment.
@@ -167,8 +169,8 @@ try {
 
 // Application-specific: load the checkout saved during order creation.
 // It must belong to your application and contain OrderId and SessionId.
-$savedOrder = findCheckoutByGatewayOrderId($callback['OrderId']);
-if (!$savedOrder || $savedOrder['OrderId'] !== $callback['OrderId']) {
+$savedOrder = findCheckoutByGatewayOrderId($callback->orderId);
+if (!$savedOrder || $savedOrder['OrderId'] !== $callback->orderId) {
     http_response_code(404);
     exit('Unknown order.');
 }
@@ -189,8 +191,8 @@ try {
 $data = $result->getData();
 if ($result->getHttpStatus() === 200
     && $result->getStatus() === '00'
-    && isset($data['OrderStatus'])
-    && $data['OrderStatus'] === 'APPROVED') {
+    && isset($data->orderStatus)
+    && $data->orderStatus === 'APPROVED') {
     // Application-specific: reconcile the saved amount/currency and order type,
     // then record the verified outcome idempotently in your database.
     // For a preauthorization, APPROVED is authorization, not capture.
@@ -215,28 +217,44 @@ for transport failures, unsuccessful HTTP or gateway status, malformed XML, or a
 missing order status. The original exception is available through `getPrevious()`.
 A retrieved `DECLINED` or `CANCELED` status remains a valid result.
 `getStatus()` is the gateway request-processing code, while
-`getData()['OrderStatus']` is the order outcome. For status results, `success()`
+`getData()->orderStatus` is the order outcome. For status results, `success()`
 checks `APPROVED`; inspect HTTP status and gateway status as shown above as well.
 Other outcomes must not be treated as confirmed payment.
 
 ## Results, errors, and debugging
 
-| Operation | Result type in `Requests\` | Data keys |
+| Operation | Result type in `Requests\` | Data object in `Data\` |
 | --- | --- | --- |
-| Create purchase/preauthorization | `OrderRequestResult` | `URL`, `OrderId`, `SessionId`, `PaymentUrl` on success |
-| Query order status | `OrderStatusRequestResult` | `OrderId`, `OrderStatus` when returned by the gateway |
+| Create purchase/preauthorization | `OrderRequestResult` | `OrderData`: `url`, `orderId`, `sessionId`, `paymentUrl` |
+| Query order status | `OrderStatusRequestResult` | `OrderStatusData`: `orderId`, `orderStatus` |
 
 Both result classes implement `Requests\RequestResultInterface` and expose
 `getHttpStatus()`, `getStatus()`, `getData()`, and `success()`.
 `OrderStatusRequestResult` also exposes `getDetails()` and may throw for missing
-order information. Directly constructed results for empty responses have empty
-data and a null gateway status; status request `execute()` throws instead. Always
-check HTTP status and data before using them. A network failure may have HTTP
+order information. Directly constructed results for empty responses return data
+objects with null fields, an empty `__unparsed` array, and a null gateway status;
+status request `execute()` throws instead. Always check HTTP status and data before
+using them. A network failure may have HTTP
 status `0`. Malformed or unexpected gateway XML throws `UnexpectedValueException`
 when parsing a result directly, wrapped in `OrderStatusRetrieveException` by
 status request `execute()`. Handle failures at your application's boundary. `getResponseBody()` returns the
 raw response string, or `false` when transport fails. Status responses map the
-gateway's `OrderID` to the `OrderId` data key.
+gateway's `OrderID` to the `orderId` property.
+
+Data objects expose readonly camelCase properties. Use property access such as
+`$result->getData()->orderId` instead of array indexing. `getData()` always returns
+a data object; missing order fields are null, including rejected creation results.
+All data objects include `__unparsed`, an array that defaults to `[]`.
+
+Extra XML fields retain their original names and nesting. For example, an extra
+`ApprovalCode` under `Response/Order` is available at
+`$data->__unparsed['Response']['Order']['ApprovalCode']`. Repeated elements become
+lists. XML attributes use `@attributes`, and mixed text uses `#text`. Namespaced
+extra fields retain their prefix, or use `{namespace-uri}name` for a default namespace.
+
+`HTTPClientResult::getInfo()` returns `Data\HTTPInfo` with `httpCode`, `url`,
+`contentType`, and `totalTime` properties. Other cURL values retain their original
+keys inside `__unparsed`. Raw response bodies remain available through `getOutput()`.
 
 For temporary diagnostics, set a writable file before creating a request:
 

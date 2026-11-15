@@ -3,6 +3,8 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Handlers;
 
 use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\EmptyXMLMessage;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderCallbackData;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\XMLData;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidXMLMessage;
 
 /**
@@ -15,11 +17,11 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidXMLMessage;
 class OrderCallbackHandler implements HandlerInterface
 {
     /**
-     * Handles callback request and returns array of DateTime, OrderId, Amount, Currency, OrderStatus values
+     * Handles callback request and returns structured DateTime, OrderId, Amount, Currency, OrderStatus values
      *
-     * @return array
+     * @return OrderCallbackData
      */
-    final public function handle(): array
+    final public function handle(): OrderCallbackData
     {
         $message = $_REQUEST['xmlmsg'] ?? null;
         if ($message === null || $message === '') {
@@ -49,13 +51,20 @@ class OrderCallbackHandler implements HandlerInterface
             throw new InvalidXMLMessage();
         }
 
-        return [
-            'DateTime'      => (string)$xmlmsg->TranDateTime,
-            'OrderId'       => (string)$xmlmsg->OrderID,
-            'Amount'        => (string)$xmlmsg->PurchaseAmount,
-            'Currency'      => (string)$xmlmsg->Currency,
-            'OrderStatus'   => (string)$xmlmsg->OrderStatus,
-            'xmlmsg'        => $_REQUEST['xmlmsg']
-        ];
+        return new OrderCallbackData(
+            dateTime: (string)$xmlmsg->TranDateTime,
+            orderId: (string)$xmlmsg->OrderID,
+            amount: (string)$xmlmsg->PurchaseAmount,
+            currency: (string)$xmlmsg->Currency,
+            orderStatus: (string)$xmlmsg->OrderStatus,
+            xmlMessage: $message,
+            __unparsed: XMLData::unparsed($xmlmsg, [
+                'TranDateTime' => true,
+                'OrderID' => true,
+                'PurchaseAmount' => true,
+                'Currency' => true,
+                'OrderStatus' => true,
+            ])
+        );
     }
 }

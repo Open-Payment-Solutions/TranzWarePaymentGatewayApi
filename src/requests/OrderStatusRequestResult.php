@@ -2,6 +2,8 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderStatusData;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\XMLData;
 use Exception;
 
 /**
@@ -15,24 +17,24 @@ class OrderStatusRequestResult implements RequestResultInterface
     private string|false $responseBody = '';
     private ?string $status = null;
     private string $details = '';
-    private ?array $data = [];
+    private OrderStatusData $data;
 
-  /**
-   * OrderStatusRequestResult constructor.
-   *
-   * @param HTTPClientResultInterface $HTTPClientResult
-   *
-   * @throws Exception
-   */
+    /**
+     * OrderStatusRequestResult constructor.
+     *
+     * @param HTTPClientResultInterface $HTTPClientResult
+     *
+     * @throws Exception
+     */
     public function __construct(HTTPClientResultInterface $HTTPClientResult)
     {
+        $this->data = new OrderStatusData();
         $this->responseBody = $HTTPClientResult->getOutput();
         $info = $HTTPClientResult->getInfo();
-        $this->httpStatus = (int)($info['http_code'] ?? 0);
+        $this->httpStatus = $info->httpCode;
 
         if (!$this->responseBody) {
             $this->status = null;
-            $this->data = [];
             return;
         }
 
@@ -57,10 +59,17 @@ class OrderStatusRequestResult implements RequestResultInterface
             );
         }
 
-        $this->data = [
-            'OrderId'       => isset($order->OrderID) ? (string)$order->OrderID : null,
-            'OrderStatus'   => isset($order->OrderStatus) ? (string)$order->OrderStatus : null
-        ];
+        $this->data = new OrderStatusData(
+            orderId: isset($order->OrderID) ? (string)$order->OrderID : null,
+            orderStatus: isset($order->OrderStatus) ? (string)$order->OrderStatus : null,
+            __unparsed: XMLData::unparsed($xml, [
+                'Response' => [
+                    'Status' => true,
+                    'Details' => true,
+                    'Order' => ['OrderID' => true, 'OrderStatus' => true],
+                ],
+            ])
+        );
     }
 
     public function getHttpStatus(): int
@@ -75,7 +84,7 @@ class OrderStatusRequestResult implements RequestResultInterface
 
     final public function success(): bool
     {
-        return ($this->data['OrderStatus'] ?? null) === 'APPROVED';
+        return $this->data->orderStatus === 'APPROVED';
     }
 
     final public function getStatus(): ?string
@@ -88,7 +97,12 @@ class OrderStatusRequestResult implements RequestResultInterface
         return $this->details;
     }
 
-    final public function getData(): ?array
+    /**
+     * Return the parsed gateway data and any unparsed fields.
+     *
+     * @return OrderStatusData
+     */
+    final public function getData(): OrderStatusData
     {
         return $this->data;
     }

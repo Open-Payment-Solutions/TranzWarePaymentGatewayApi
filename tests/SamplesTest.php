@@ -3,9 +3,19 @@
 namespace tests;
 
 use PHPUnit\Framework\TestCase;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderCallbackData;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderStatusData;
 
 final class SamplesTest extends TestCase
 {
+    /**
+     * Run a sample script with simulated transport and collect its response.
+     *
+     * @param string $sample
+     * @param array $scenario
+     *
+     * @return array
+     */
     private function runSample(string $sample, array $scenario): array
     {
         $process = proc_open([
@@ -25,6 +35,13 @@ final class SamplesTest extends TestCase
         return json_decode($output, true, 512, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * Build an order creation response for the sample tests.
+     *
+     * @param string $status
+     *
+     * @return string
+     */
     private static function orderResponse(string $status = '00'): string
     {
         return '<TKKPG><Response><Status>' . $status . '</Status><Order>'
@@ -32,7 +49,15 @@ final class SamplesTest extends TestCase
             . '<SessionID>session</SessionID></Order></Response></TKKPG>';
     }
 
-    /** @dataProvider rejectedOrders */
+    /**
+     * Display creation exceptions with an HTTP error status.
+     *
+     * @param array $scenario
+     * @param string $message
+     *
+     * @dataProvider rejectedOrders
+     * @return       void
+     */
     public function testCreateSampleHandlesThrownFailures(array $scenario, string $message): void
     {
         $result = $this->runSample('create.php', $scenario);
@@ -42,6 +67,11 @@ final class SamplesTest extends TestCase
         $this->assertStringNotContainsString('FAILED', $result['output']);
     }
 
+    /**
+     * Provide rejected and malformed order creation responses.
+     *
+     * @return array
+     */
     public static function rejectedOrders(): array
     {
         return [
@@ -62,6 +92,11 @@ final class SamplesTest extends TestCase
         ];
     }
 
+    /**
+     * Display the escaped payment link after successful order creation.
+     *
+     * @return void
+     */
     public function testCreateSampleStillPrintsPaymentLinkOnSuccess(): void
     {
         $result = $this->runSample('create.php', ['body' => self::orderResponse(), 'http_code' => 200]);
@@ -72,7 +107,16 @@ final class SamplesTest extends TestCase
         );
     }
 
-    /** @dataProvider invalidCallbacks */
+    /**
+     * Display callback exception messages.
+     *
+     * @param string $sample
+     * @param array $request
+     * @param string $message
+     *
+     * @dataProvider invalidCallbacks
+     * @return       void
+     */
     public function testCallbackSamplesPrintExceptionMessages(string $sample, array $request, string $message): void
     {
         $result = $this->runSample($sample, ['request' => $request]);
@@ -81,6 +125,11 @@ final class SamplesTest extends TestCase
         $this->assertStringNotContainsString('array(', $result['output']);
     }
 
+    /**
+     * Provide invalid callback inputs for each callback sample.
+     *
+     * @return array
+     */
     public static function invalidCallbacks(): array
     {
         $rows = [];
@@ -93,17 +142,30 @@ final class SamplesTest extends TestCase
         return $rows;
     }
 
-    /** @dataProvider validCallbacks */
+    /**
+     * Display parsed callback data on success.
+     *
+     * @param string $sample
+     * @param string $message
+     *
+     * @dataProvider validCallbacks
+     * @return       void
+     */
     public function testCallbackSamplesDumpParsedDataOnSuccess(string $sample, string $message): void
     {
         $result = $this->runSample($sample, ['request' => ['xmlmsg' => $message]]);
         $this->assertSame(200, $result['status']);
-        $this->assertStringContainsString('array(6)', $result['output']);
-        $this->assertStringContainsString('"OrderId"', $result['output']);
+        $this->assertStringContainsString('object(' . OrderCallbackData::class . ')', $result['output']);
+        $this->assertStringContainsString('"orderId"', $result['output']);
         $this->assertStringContainsString('"123"', $result['output']);
         $this->assertStringContainsString('"APPROVED"', $result['output']);
     }
 
+    /**
+     * Provide raw XML and base64 inputs for each callback sample.
+     *
+     * @return array
+     */
     public static function validCallbacks(): array
     {
         $xml = '<Order><TranDateTime>2026-11-15</TranDateTime><OrderID>123</OrderID>'
@@ -116,7 +178,14 @@ final class SamplesTest extends TestCase
         return $rows;
     }
 
-    /** @dataProvider retrievedStatuses */
+    /**
+     * Display retrieved order status data.
+     *
+     * @param string $status
+     *
+     * @dataProvider retrievedStatuses
+     * @return       void
+     */
     public function testStatusSampleDumpsRetrievedOutcome(string $status): void
     {
         $body = str_replace('</Order>', '<OrderStatus>' . $status . '</OrderStatus></Order>', self::orderResponse());
@@ -126,16 +195,30 @@ final class SamplesTest extends TestCase
             'http_code' => 200,
         ]);
         $this->assertSame(200, $result['status']);
-        $this->assertStringContainsString('array(2)', $result['output']);
+        $this->assertStringContainsString('object(' . OrderStatusData::class . ')', $result['output']);
         $this->assertStringContainsString('"' . $status . '"', $result['output']);
     }
 
+    /**
+     * Provide approved and declined statuses for the status sample.
+     *
+     * @return array
+     */
     public static function retrievedStatuses(): array
     {
         return [['APPROVED'], ['DECLINED']];
     }
 
-    /** @dataProvider failedStatusRequests */
+    /**
+     * Distinguish validation errors from retrieval failures.
+     *
+     * @param array $scenario
+     * @param int $status
+     * @param string $message
+     *
+     * @dataProvider failedStatusRequests
+     * @return       void
+     */
     public function testStatusSampleDistinguishesValidationFromRetrievalFailures(
         array $scenario,
         int $status,
@@ -147,6 +230,11 @@ final class SamplesTest extends TestCase
         $this->assertStringNotContainsString('array(', $result['output']);
     }
 
+    /**
+     * Provide invalid identifiers and failed responses for the status sample.
+     *
+     * @return array
+     */
     public static function failedStatusRequests(): array
     {
         return [

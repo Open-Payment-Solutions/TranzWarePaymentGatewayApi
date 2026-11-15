@@ -7,7 +7,15 @@ use PHPUnit\Framework\TestCase;
 
 final class OrderTypesEnumTest extends TestCase
 {
-    /** @dataProvider orderTypes */
+    /**
+     * Parse order types into enum cases.
+     *
+     * @param string $input
+     * @param OrderTypes $expected
+     *
+     * @dataProvider orderTypes
+     * @return       void
+     */
     public function testFromStringReturnsEnumCase(string $input, OrderTypes $expected): void
     {
         $this->assertSame($expected, OrderTypes::fromString($input));
@@ -16,13 +24,25 @@ final class OrderTypesEnumTest extends TestCase
         $this->assertSame($expected, OrderTypes::from($expected->value));
     }
 
+    /**
+     * Provide order type strings and their expected enum cases.
+     *
+     * @return array
+     */
     public static function orderTypes(): array
     {
         return [['Purchase', OrderTypes::PURCHASE], ['PRE_AUTH', OrderTypes::PRE_AUTH],
             ['preAuth', OrderTypes::PRE_AUTH]];
     }
 
-    /** @dataProvider invalidTypes */
+    /**
+     * Reject unknown order types with a specific exception.
+     *
+     * @param string $input
+     *
+     * @dataProvider invalidTypes
+     * @return       void
+     */
     public function testUnknownOrderTypeThrowsSpecificException(string $input): void
     {
         $this->expectException(\OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderType::class);
@@ -30,16 +50,31 @@ final class OrderTypesEnumTest extends TestCase
         OrderTypes::fromString($input);
     }
 
+    /**
+     * Provide unsupported order type strings.
+     *
+     * @return array
+     */
     public static function invalidTypes(): array
     {
         return [[''], ['Unknown'], ['?!']];
     }
 
+    /**
+     * Sanitize invalid character encoding to an empty string.
+     *
+     * @return void
+     */
     public function testInvalidEncodingIsSanitizedToEmptyString(): void
     {
         $this->assertSame('', OrderTypes::sanitizeValue("Pre\xffAuth"));
     }
 
+    /**
+     * Require exact gateway names when validating order types.
+     *
+     * @return void
+     */
     public function testValidationRequiresExactGatewayName(): void
     {
         $this->assertTrue(OrderTypes::isValid('Purchase'));

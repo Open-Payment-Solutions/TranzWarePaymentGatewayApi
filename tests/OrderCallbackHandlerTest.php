@@ -9,7 +9,16 @@ use PHPUnit\Framework\TestCase;
 
 final class OrderCallbackHandlerTest extends TestCase
 {
-    /** @dataProvider invalidMessages */
+    /**
+     * Reject invalid callbacks with specific exceptions.
+     *
+     * @param array $request
+     * @param class-string<\Throwable> $exception
+     * @param string $message
+     *
+     * @dataProvider invalidMessages
+     * @return       void
+     */
     public function testInvalidCallbacksThrowSpecificExceptions(
         array $request,
         string $exception,
@@ -26,6 +35,11 @@ final class OrderCallbackHandlerTest extends TestCase
         }
     }
 
+    /**
+     * Provide empty, malformed, and incomplete callback messages.
+     *
+     * @return array
+     */
     public static function invalidMessages(): array
     {
         return [

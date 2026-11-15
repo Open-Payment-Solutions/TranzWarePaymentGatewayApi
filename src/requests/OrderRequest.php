@@ -20,17 +20,17 @@ class OrderRequest implements RequestInterface
     /**
      * OrderRequest constructor.
      *
-     * @param string                                             $requestUrl
-     * @param string                                             $approvalUrl
-     * @param string                                             $declineUrl
-     * @param string                                             $cancelUrl
+     * @param string $requestUrl
+     * @param string $approvalUrl
+     * @param string $declineUrl
+     * @param string $cancelUrl
      * @param OrderTypes|string $orderType
-     * @param string                                             $merchantId
-     * @param float                                              $amount
-     * @param CurrencyCodes|string                                             $currency
-     * @param string                                             $description
-     * @param string                                             $lang
-     * @param string                                             $debugToFile
+     * @param string $merchantId
+     * @param float $amount
+     * @param CurrencyCodes|string $currency
+     * @param string $description
+     * @param string $lang
+     * @param string|null $debugToFile
      */
     public function __construct(
         string $requestUrl,
@@ -63,7 +63,7 @@ class OrderRequest implements RequestInterface
         $this->debugToFile = $debugToFile;
     }
 
-    public function execute(): RequestResultInterface
+    public function execute(): OrderRequestResult
     {
         $ssl = [
             'key' => $this->sslKey,

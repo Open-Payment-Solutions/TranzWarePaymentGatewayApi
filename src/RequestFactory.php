@@ -71,9 +71,9 @@ class RequestFactory implements RequestFactoryInterface
     /**
      * Setting certificate, key file, key pass (default: ''), strict mode (default: enabled)
      *
-     * @param string    $certFile  Path to certificate
-     * @param string    $keyFile   Path to private key
-     * @param string    $keyPass   (optional) Password provided in creation of private key
+     * @param string $certFile  Path to certificate
+     * @param string $keyFile   Path to private key
+     * @param string|null $keyPass   (optional) Password provided in creation of private key
      * @param bool|null $strictSSL (optional) Enables or disables SSL host verification (default: enabled)
      *
      * @return RequestFactory
@@ -124,14 +124,16 @@ class RequestFactory implements RequestFactoryInterface
     protected string $LANG;
 
     /**
-     * @var UrlProviderInterface
-     *
      * Instance of UrlProviderInterface
      * that returns set of urls required by request instances
+     *
+     * @var UrlProviderInterface
      */
     protected UrlProviderInterface $urlProvider;
 
     /**
+     * Set the request URL provider.
+     *
      * @param UrlProviderInterface $urlProvider
      *
      * @return RequestFactory
@@ -143,6 +145,8 @@ class RequestFactory implements RequestFactoryInterface
     }
 
     /**
+     * Return the request URL provider.
+     *
      * @return UrlProviderInterface
      */
     private function getUrlProvider(): UrlProviderInterface
@@ -154,6 +158,8 @@ class RequestFactory implements RequestFactoryInterface
     protected ?string $debugFile = null;
 
     /**
+     * Set the request debug output file.
+     *
      * @param string $pathToFile
      *
      * @return RequestFactory
@@ -166,9 +172,11 @@ class RequestFactory implements RequestFactoryInterface
     }
 
     /**
-     * @param float                                              $amount
-     * @param CurrencyCodes|string                                             $currency
-     * @param string                                             $description (optional)
+     * Create an order request.
+     *
+     * @param float $amount
+     * @param CurrencyCodes|string $currency
+     * @param string $description (optional)
      * @param OrderTypes|string $orderType   (optional)
      *
      * @return OrderRequest
@@ -197,7 +205,9 @@ class RequestFactory implements RequestFactoryInterface
     }
 
     /**
-     * @param float  $amount
+     * Create a preauthorization request.
+     *
+     * @param float $amount
      * @param CurrencyCodes|string $currency
      * @param string $description (optional)
      *
@@ -212,7 +222,9 @@ class RequestFactory implements RequestFactoryInterface
     }
 
     /**
-     * @param float  $amount
+     * Create a purchase request.
+     *
+     * @param float $amount
      * @param CurrencyCodes|string $currency
      * @param string $description (optional)
      *
@@ -226,14 +238,16 @@ class RequestFactory implements RequestFactoryInterface
         return $this->createOrderRequest($amount, $currency, $description, OrderTypes::PURCHASE);
     }
 
-  /**
-   * @param string|null $orderId
-   * @param string|null $sessionId
-   *
-   * @return OrderStatusRequest
-   * @throws InvalidOrderId
-   * @throws InvalidSessionId
-   */
+    /**
+     * Create an order status request.
+     *
+     * @param string|null $orderId
+     * @param string|null $sessionId
+     *
+     * @return OrderStatusRequest
+     * @throws InvalidOrderId
+     * @throws InvalidSessionId
+     */
     final public function createOrderStatusRequest(?string $orderId, ?string $sessionId): OrderStatusRequest
     {
         $request = new OrderStatusRequest(

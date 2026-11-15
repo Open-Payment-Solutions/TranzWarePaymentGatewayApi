@@ -2,6 +2,9 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderData;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderStatusData;
+
 /**
  * Interface RequestResultInterface
  *
@@ -26,7 +29,7 @@ interface RequestResultInterface
     /**
      * Returns raw response body
      *
-     * @return mixed
+     * @return string|false
      */
     public function getResponseBody(): string|false;
 
@@ -40,14 +43,14 @@ interface RequestResultInterface
     /**
      * Returns request processing status
      *
-     * @return mixed
+     * @return string|null
      */
     public function getStatus(): ?string;
 
     /**
      * Returns usable structure from processing of response body
      *
-     * @return mixed
+     * @return OrderData|OrderStatusData
      */
-    public function getData(): ?array;
+    public function getData(): OrderData|OrderStatusData;
 }

@@ -2,6 +2,8 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\HTTPInfo;
+
 /**
  * Class HTTPClientResult
  *
@@ -9,23 +11,25 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
  */
 class HTTPClientResult implements HTTPClientResultInterface
 {
-    private array $info;
+    private HTTPInfo $info;
     private string|false $output;
 
     /**
      * HTTPClientResult constructor.
      *
-     * @param mixed $output
-     * @param mixed $info
+     * @param string|false $output
+     * @param HTTPInfo|array $info
      */
-    public function __construct(string|false $output, array $info)
+    public function __construct(string|false $output, HTTPInfo|array $info)
     {
-        $this->info = $info;
+        $this->info = $info instanceof HTTPInfo ? $info : new HTTPInfo($info);
         $this->output = $output;
     }
 
     /**
-     * @return mixed
+     * Return the raw HTTP response body.
+     *
+     * @return string|false
      */
     final public function getOutput(): string|false
     {
@@ -33,9 +37,11 @@ class HTTPClientResult implements HTTPClientResultInterface
     }
 
     /**
-     * @return mixed
+     * Return HTTP transport information.
+     *
+     * @return HTTPInfo
      */
-    final public function getInfo(): array
+    final public function getInfo(): HTTPInfo
     {
         return $this->info;
     }

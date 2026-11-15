@@ -21,12 +21,13 @@ class OrderStatusRequest implements RequestInterface
     /**
      * OrderStatusRequest constructor.
      *
-     * @param string $merchantId
      * @param string $requestUrl
+     * @param string $merchantId
      * @param string|null $orderId
      * @param string|null $sessionId
      * @param string $lang (optional)
-     * @param string $debugToFile (optional)
+     * @param string|null $debugToFile (optional)
+     *
      * @throws InvalidOrderId
      * @throws InvalidSessionId
      */
@@ -51,9 +52,12 @@ class OrderStatusRequest implements RequestInterface
     }
 
     /**
+     * Execute the request.
+     *
+     * @return OrderStatusRequestResult
      * @throws OrderStatusRetrieveException
      */
-    public function execute(): RequestResultInterface
+    public function execute(): OrderStatusRequestResult
     {
         try {
             $ssl = [
@@ -71,12 +75,12 @@ class OrderStatusRequest implements RequestInterface
                 $httpClient->setDebugToFile($this->debugToFile);
             }
             $httpResult = $httpClient->execute();
-            if (($httpResult->getInfo()['http_code'] ?? 0) !== 200 || !$httpResult->getOutput()) {
+            if ($httpResult->getInfo()->httpCode !== 200 || !$httpResult->getOutput()) {
                 throw new \RuntimeException('Empty gateway response or unsuccessful HTTP status');
             }
 
             $result = new OrderStatusRequestResult($httpResult);
-            if ($result->getStatus() !== '00' || ($result->getData()['OrderStatus'] ?? '') === '') {
+            if ($result->getStatus() !== '00' || ($result->getData()->orderStatus ?? '') === '') {
                 throw new \UnexpectedValueException('Gateway did not return an order status');
             }
             return $result;

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Retrieve an order status and handle validation or gateway errors.
+ */
+
 $autoloadFile = __DIR__ . '/vendor/autoload.php';
 require_once is_file($autoloadFile) ? $autoloadFile : __DIR__ . '/../vendor/autoload.php';
 

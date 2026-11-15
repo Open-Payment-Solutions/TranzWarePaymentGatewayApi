@@ -12,10 +12,10 @@ trait RequestSettings
     /**
      * Sets ssl certificate file path required in request
      *
-     * @param string $cert
-     * @param string $key
-     * @param string $keyPass   (optional)
-     * @param bool   $strictSSL (optional)
+     * @param string|null $cert
+     * @param string|null $key
+     * @param string|null $keyPass   (optional)
+     * @param bool|null $strictSSL (optional)
      *
      * @return void
      */

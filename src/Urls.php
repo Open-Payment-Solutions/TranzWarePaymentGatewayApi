@@ -17,18 +17,18 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 class Urls implements UrlProviderInterface
 {
     /**
-     * @var string $GATEWAY_URL
-     *
      * Url of payment gateway where requests
      * will go from us
+     *
+     * @var string $GATEWAY_URL
      */
     protected string $GATEWAY_URL = '';
 
     /**
-     * @param $url
-     *
      * Sets payment gateway url
      * and returns 'this' (for method chaining)
+     *
+     * @param string $url
      *
      * @return $this
      */
@@ -49,21 +49,21 @@ class Urls implements UrlProviderInterface
     }
 
     /**
-     * @var string $ON_ORDER_APPROVED_URL
-     *
      * The location where browser will be forwarded
      * in cases when payment approved by gateway
      * NOTE:
      *   "approved" does not mean it's been paid
      *   requires checking status of payment
+     *
+     * @var string $ON_ORDER_APPROVED_URL
      */
     protected string $ON_ORDER_APPROVED_URL = '';
 
     /**
-     * @param $url
-     *
      * Sets order approval redirection url
      * and returns 'this' (for method chaining)
+     *
+     * @param string $url
      *
      * @return $this
      */
@@ -84,18 +84,18 @@ class Urls implements UrlProviderInterface
     }
 
     /**
-     * @var string $ON_ORDER_DECLINED_URL
-     *
      * The location where browser will be forwarded
      * in cases when payment gateway decline order
+     *
+     * @var string $ON_ORDER_DECLINED_URL
      */
     protected string $ON_ORDER_DECLINED_URL = '';
 
     /**
-     * @param $url
-     *
      * Sets order decline redirection url
      * and returns 'this' (for method chaining)
+     *
+     * @param string $url
      *
      * @return $this
      */
@@ -116,18 +116,18 @@ class Urls implements UrlProviderInterface
     }
 
     /**
-     * @var string $ON_ORDER_CANCELED_URL
-     *
      * The location where browser will be forwarded
      * in cases when order will be cancelled by user
+     *
+     * @var string $ON_ORDER_CANCELED_URL
      */
     protected string $ON_ORDER_CANCELED_URL = '';
 
     /**
-     * @param $url
-     *
      * Sets order cancellation redirection url
      * and returns 'this' (for method chaining)
+     *
+     * @param string $url
      *
      * @return $this
      */

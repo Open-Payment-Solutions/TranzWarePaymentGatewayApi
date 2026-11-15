@@ -6,10 +6,16 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\HTTPClient;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\HTTPClientInterface;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\HTTPClientResult;
 use PHPUnit\Framework\TestCase;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\HTTPInfo;
 use tests\fixtures\Transport;
 
 final class HTTPClientTest extends TestCase
 {
+    /**
+     * Prepare the simulated HTTP transport.
+     *
+     * @return void
+     */
     protected function setUp(): void
     {
         Transport::$enabled = true;
@@ -18,19 +24,31 @@ final class HTTPClientTest extends TestCase
         Transport::$info = ['http_code' => 200];
     }
 
+    /**
+     * Reset the simulated HTTP transport.
+     *
+     * @return void
+     */
     protected function tearDown(): void
     {
         Transport::$enabled = false;
         Transport::$options = [];
     }
 
+    /**
+     * Post XML and preserve the raw transport result.
+     *
+     * @return void
+     */
     public function testPostsXmlAndReturnsUnmodifiedTransportResult(): void
     {
         $client = new HTTPClient('https://gateway.example', '<Request>€</Request>');
         $this->assertInstanceOf(HTTPClientInterface::class, $client);
         $result = $client->execute();
         $this->assertSame('<Response/>', $result->getOutput());
-        $this->assertSame(['http_code' => 200], $result->getInfo());
+        $this->assertInstanceOf(HTTPInfo::class, $result->getInfo());
+        $this->assertSame(200, $result->getInfo()->httpCode);
+        $this->assertSame([], $result->getInfo()->__unparsed);
         $options = Transport::$options;
         $this->assertSame('https://gateway.example', $options[CURLOPT_URL]);
         $this->assertSame(10, $options[CURLOPT_CONNECTTIMEOUT]);
@@ -42,7 +60,14 @@ final class HTTPClientTest extends TestCase
         $this->assertSame(['Content-Type: application/xml', 'Content-Length: 22'], $options[CURLOPT_HTTPHEADER]);
     }
 
-    /** @dataProvider sslModes */
+    /**
+     * Apply certificate and SSL verification settings.
+     *
+     * @param bool $strict
+     *
+     * @dataProvider sslModes
+     * @return       void
+     */
     public function testCertificateAndVerificationOptions(bool $strict): void
     {
         $ssl = ['cert' => '/client.crt', 'key' => '/client.key', 'keyPass' => 'test-pass',
@@ -58,11 +83,21 @@ final class HTTPClientTest extends TestCase
         $this->assertSame($strict, $options[CURLOPT_SSL_VERIFYPEER]);
     }
 
+    /**
+     * Provide enabled and disabled SSL verification modes.
+     *
+     * @return array
+     */
     public static function sslModes(): array
     {
         return [[true], [false]];
     }
 
+    /**
+     * Allow an empty body with minimal certificate settings.
+     *
+     * @return void
+     */
     public function testMinimalCertificateAndEmptyBody(): void
     {
         (new HTTPClient('https://gateway.example', null, ['cert' => '/cert', 'key' => '/key']))->execute();
@@ -74,15 +109,25 @@ final class HTTPClientTest extends TestCase
         );
     }
 
+    /**
+     * Preserve failed transport output and HTTP status information.
+     *
+     * @return void
+     */
     public function testTransportFailureIsPreserved(): void
     {
         Transport::$output = false;
         Transport::$info = ['http_code' => 0];
         $result = (new HTTPClient('https://gateway.example'))->execute();
         $this->assertFalse($result->getOutput());
-        $this->assertSame(['http_code' => 0], $result->getInfo());
+        $this->assertSame(0, $result->getInfo()->httpCode);
     }
 
+    /**
+     * Write debug output and close replaced or unused file descriptors.
+     *
+     * @return void
+     */
     public function testDebugOutputIsWrittenAndDescriptorsAreClosed(): void
     {
         $file = tempnam(sys_get_temp_dir(), 'twpg-test-');
@@ -104,16 +149,27 @@ final class HTTPClientTest extends TestCase
         }
     }
 
+    /**
+     * Reject an unwritable debug output path.
+     *
+     * @return void
+     */
     public function testUnwritableDebugPathThrows(): void
     {
         $this->expectException(\RuntimeException::class);
         (new HTTPClient('https://gateway.example'))->setDebugToFile('/nonexistent-twpg-directory/debug.log');
     }
 
+    /**
+     * Preserve empty output and transport information in raw results.
+     *
+     * @return void
+     */
     public function testRawResultKeepsEmptyOutputAndInfo(): void
     {
         $result = new HTTPClientResult('', []);
         $this->assertSame('', $result->getOutput());
-        $this->assertSame([], $result->getInfo());
+        $this->assertSame(0, $result->getInfo()->httpCode);
+        $this->assertSame([], $result->getInfo()->__unparsed);
     }
 }

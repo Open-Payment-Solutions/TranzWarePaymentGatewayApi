@@ -2,6 +2,8 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Handlers;
 
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderCallbackData;
+
 /**
  * Interface HandlerInterface
  *
@@ -9,5 +11,10 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Handlers;
  */
 interface HandlerInterface
 {
-    public function handle(): array;
+    /**
+     * Parse callback fields and retain unparsed gateway data.
+     *
+     * @return OrderCallbackData
+     */
+    public function handle(): OrderCallbackData;
 }

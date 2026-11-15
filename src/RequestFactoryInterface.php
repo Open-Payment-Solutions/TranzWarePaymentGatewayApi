@@ -31,17 +31,51 @@ interface RequestFactoryInterface
     );
 
     /**
+     * Set the client certificate and SSL verification mode.
+     *
+     * @param string $certFile
+     * @param string $keyFile
+     * @param string|null $keyPass
+     * @param bool|null $strictSSL
+     *
+     * @return self
+     */
+    public function setCertificate(
+        string $certFile,
+        string $keyFile,
+        ?string $keyPass = '',
+        ?bool $strictSSL = null,
+    ): self;
+
+    /**
+     * Enable SSL verification.
+     *
+     * @return self
+     */
+    public function enableSSLVerification(): self;
+
+    /**
+     * Disable SSL verification.
+     *
+     * @return self
+     */
+    public function disableSSLVerification(): self;
+
+    /**
      * Sets verbose mode in requests and file to output
      *
-     * @param  string $path_to_file
-     * @return void
+     * @param string $path_to_file
+     *
+     * @return self
      */
     public function setDebugFile(string $path_to_file): self;
 
     /**
-     * @param float                                              $amount
-     * @param CurrencyCodes|string                                             $currency
-     * @param string                                             $description
+     * Create an order request.
+     *
+     * @param float $amount
+     * @param CurrencyCodes|string $currency
+     * @param string $description
      * @param OrderTypes|string $orderType
      *
      * @return RequestInterface
@@ -54,6 +88,38 @@ interface RequestFactoryInterface
     ): RequestInterface;
 
     /**
+     * Create a purchase request.
+     *
+     * @param float $amount
+     * @param CurrencyCodes|string $currency
+     * @param string $description
+     *
+     * @return RequestInterface
+     */
+    public function createOrderPurchaseRequest(
+        float $amount,
+        CurrencyCodes|string $currency,
+        string $description = '',
+    ): RequestInterface;
+
+    /**
+     * Create a preauthorization request.
+     *
+     * @param float $amount
+     * @param CurrencyCodes|string $currency
+     * @param string $description
+     *
+     * @return RequestInterface
+     */
+    public function createOrderPreAuthRequest(
+        float $amount,
+        CurrencyCodes|string $currency,
+        string $description = '',
+    ): RequestInterface;
+
+    /**
+     * Create an order status request.
+     *
      * @param string|null $orderId
      * @param string|null $sessionId
      *

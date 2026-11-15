@@ -14,6 +14,15 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 use tests\fixtures\Transport;
 
+/**
+ * Record cURL options when transport simulation is enabled.
+ *
+ * @param \CurlHandle $handle
+ * @param int $option
+ * @param mixed $value
+ *
+ * @return bool
+ */
 function curl_setopt(\CurlHandle $handle, int $option, mixed $value): bool
 {
     if (!Transport::$enabled) {
@@ -23,11 +32,25 @@ function curl_setopt(\CurlHandle $handle, int $option, mixed $value): bool
     return true;
 }
 
+/**
+ * Return the simulated response or execute the real cURL request.
+ *
+ * @param \CurlHandle $handle
+ *
+ * @return string|bool
+ */
 function curl_exec(\CurlHandle $handle): string|bool
 {
     return Transport::$enabled ? Transport::$output : \curl_exec($handle);
 }
 
+/**
+ * Return simulated or real cURL transport information.
+ *
+ * @param \CurlHandle $handle
+ *
+ * @return array
+ */
 function curl_getinfo(\CurlHandle $handle): array
 {
     return Transport::$enabled ? Transport::$info : \curl_getinfo($handle);

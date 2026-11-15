@@ -14,6 +14,11 @@ use tests\fixtures\Transport;
 
 final class RequestsTest extends TestCase
 {
+    /**
+     * Prepare the simulated HTTP transport.
+     *
+     * @return void
+     */
     protected function setUp(): void
     {
         Transport::$enabled = true;
@@ -24,12 +29,22 @@ final class RequestsTest extends TestCase
         Transport::$info = ['http_code' => 200];
     }
 
+    /**
+     * Reset the simulated HTTP transport.
+     *
+     * @return void
+     */
     protected function tearDown(): void
     {
         Transport::$enabled = false;
         Transport::$options = [];
     }
 
+    /**
+     * Create a request factory for testing.
+     *
+     * @return RequestFactory
+     */
     private function factory(): RequestFactory
     {
         return new RequestFactory(
@@ -42,7 +57,15 @@ final class RequestsTest extends TestCase
         );
     }
 
-    /** @dataProvider orderTypes */
+    /**
+     * Include configured values in order XML.
+     *
+     * @param OrderTypes|string $type
+     * @param string $expected
+     *
+     * @dataProvider orderTypes
+     * @return       void
+     */
     public function testOrderXmlContainsConfiguredValues(OrderTypes|string $type, string $expected): void
     {
         $factory = $this->factory();
@@ -67,12 +90,22 @@ final class RequestsTest extends TestCase
         $this->assertSame(2, Transport::$options[CURLOPT_SSL_VERIFYHOST]);
     }
 
+    /**
+     * Provide supported order types and their normalized values.
+     *
+     * @return array
+     */
     public static function orderTypes(): array
     {
         return [[OrderTypes::PURCHASE, 'Purchase'], [OrderTypes::PRE_AUTH, 'PreAuth'],
             ['pre_auth', 'PreAuth'], ['purchase', 'Purchase']];
     }
 
+    /**
+     * Serialize currency enum cases as numeric gateway codes.
+     *
+     * @return void
+     */
     public function testCurrencyEnumIsSerializedAsNumericCode(): void
     {
         $this->factory()->createOrderPurchaseRequest(1, CurrencyCodes::EUR)->execute();
@@ -80,6 +113,11 @@ final class RequestsTest extends TestCase
         $this->assertSame('978', (string)$xml->Request->Order->Currency);
     }
 
+    /**
+     * Accept numeric currency strings outside the currency enum.
+     *
+     * @return void
+     */
     public function testUnsupportedNumericCurrencyCanStillBeSentAsString(): void
     {
         $this->factory()->createOrderPurchaseRequest(1, '826')->execute();
@@ -87,12 +125,22 @@ final class RequestsTest extends TestCase
         $this->assertSame('826', (string)$xml->Request->Order->Currency);
     }
 
+    /**
+     * Reject invalid order types before sending a request.
+     *
+     * @return void
+     */
     public function testInvalidOrderTypeIsRejectedBeforeTransport(): void
     {
         $this->expectException(\OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderType::class);
         $this->factory()->createOrderRequest(1, '840', '', 'unknown');
     }
 
+    /**
+     * Escape order and session identifiers in status request XML.
+     *
+     * @return void
+     */
     public function testStatusXmlAndIdentifiersAreEscaped(): void
     {
         $result = $this->factory()->createOrderStatusRequest('123<&', 'session&<>')->execute();
@@ -105,7 +153,16 @@ final class RequestsTest extends TestCase
         $this->assertSame('session&<>', (string)$xml->Request->SessionID);
     }
 
-    /** @dataProvider certificateModes */
+    /**
+     * Preserve or override the configured SSL verification mode.
+     *
+     * @param string $mode
+     * @param bool|null $certificateMode
+     * @param bool $expected
+     *
+     * @dataProvider certificateModes
+     * @return       void
+     */
     public function testFactoryPreservesAndOverridesSslMode(string $mode, ?bool $certificateMode, bool $expected): void
     {
         $factory = $this->factory();
@@ -119,6 +176,11 @@ final class RequestsTest extends TestCase
         }
     }
 
+    /**
+     * Provide SSL verification defaults and explicit overrides.
+     *
+     * @return array
+     */
     public static function certificateModes(): array
     {
         return [['', null, true], ['disableSSLVerification', null, false],
@@ -126,6 +188,11 @@ final class RequestsTest extends TestCase
             ['enableSSLVerification', false, false]];
     }
 
+    /**
+     * Select the expected order type through each convenience method.
+     *
+     * @return void
+     */
     public function testConvenienceMethodsSelectCorrectOrderTypes(): void
     {
         $factory = $this->factory();
@@ -141,6 +208,11 @@ final class RequestsTest extends TestCase
         }
     }
 
+    /**
+     * Pass debug configuration to order and status requests.
+     *
+     * @return void
+     */
     public function testDebugConfigurationReachesBothRequestTypes(): void
     {
         $file = tempnam(sys_get_temp_dir(), 'twpg-test-');
@@ -162,6 +234,11 @@ final class RequestsTest extends TestCase
         }
     }
 
+    /**
+     * Apply changes to request SSL settings after construction.
+     *
+     * @return void
+     */
     public function testRequestSettingsCanBeChangedAfterConstruction(): void
     {
         $requests = [new OrderRequest('https://gateway.example', 'a', 'd', 'c', OrderTypes::PURCHASE, 'm', 1, '840'),

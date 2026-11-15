@@ -7,14 +7,24 @@ use PHPUnit\Framework\TestCase;
 
 final class OrderTypesTest extends TestCase
 {
-    public function testOrderTypeSanitizerReturnsEmptyString()
+    /**
+     * Sanitize unsupported characters to an empty order type.
+     *
+     * @return void
+     */
+    public function testOrderTypeSanitizerReturnsEmptyString(): void
     {
         $input = '  _-,./?\!@#$%^&*()+= ';
         $actual = OrderTypes::sanitizeValue($input);
         $this->assertEmpty($actual);
     }
 
-    public function testOrderTypeSanitizerSnakeCase()
+    /**
+     * Normalize uppercase snake case order types.
+     *
+     * @return void
+     */
+    public function testOrderTypeSanitizerSnakeCase(): void
     {
         $input = 'PRE_AUTH';
         $expected = 'PreAuth';
@@ -22,7 +32,12 @@ final class OrderTypesTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testOrderTypeSanitizerCamelCaseLowerCaseFirst()
+    /**
+     * Normalize camel case order types.
+     *
+     * @return void
+     */
+    public function testOrderTypeSanitizerCamelCaseLowerCaseFirst(): void
     {
         $input = 'preAuth';
         $expected = 'PreAuth';
@@ -30,7 +45,12 @@ final class OrderTypesTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testOrderTypeSanitizerSnakeCaseAllLowerCase()
+    /**
+     * Normalize lowercase snake case order types.
+     *
+     * @return void
+     */
+    public function testOrderTypeSanitizerSnakeCaseAllLowerCase(): void
     {
         $input = 'pre_auth';
         $expected = 'PreAuth';
@@ -38,21 +58,36 @@ final class OrderTypesTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testValidationInvalidType()
+    /**
+     * Reject unsupported order type names.
+     *
+     * @return void
+     */
+    public function testValidationInvalidType(): void
     {
         $input = 'FakeAuth';
         $actual = OrderTypes::isValid($input);
         $this->assertFalse($actual);
     }
 
-    public function testValidationValidType()
+    /**
+     * Accept a supported gateway order type name.
+     *
+     * @return void
+     */
+    public function testValidationValidType(): void
     {
         $input = 'PreAuth';
         $actual = OrderTypes::isValid($input);
         $this->assertTrue($actual);
     }
 
-    public function testFromStringSnakeCase()
+    /**
+     * Parse uppercase snake case order types.
+     *
+     * @return void
+     */
+    public function testFromStringSnakeCase(): void
     {
         $input = 'PRE_AUTH';
         $expected = 'PreAuth';
@@ -60,7 +95,12 @@ final class OrderTypesTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testFromStringCamelCaseLowerCaseFirst()
+    /**
+     * Parse camel case order types.
+     *
+     * @return void
+     */
+    public function testFromStringCamelCaseLowerCaseFirst(): void
     {
         $input = 'preAuth';
         $expected = 'PreAuth';
@@ -68,7 +108,12 @@ final class OrderTypesTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testFromStringSnakeCaseAllLowerCase()
+    /**
+     * Parse lowercase snake case order types.
+     *
+     * @return void
+     */
+    public function testFromStringSnakeCaseAllLowerCase(): void
     {
         $input = 'pre_auth';
         $expected = 'PreAuth';
@@ -76,7 +121,12 @@ final class OrderTypesTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testFromStringOneWordCaseFirst()
+    /**
+     * Parse the purchase order type.
+     *
+     * @return void
+     */
+    public function testFromStringOneWordCaseFirst(): void
     {
         $input = 'Purchase';
         $expected = 'Purchase';

@@ -3,13 +3,13 @@
 PHP library for creating orders, checking order status, and parsing callbacks from
 the Compass Plus TranzWare Payment Gateway (also known as TWEC PG).
 
-The new edition is **1.4.1** on `main`. The previous edition is preserved on the
+The new edition is **1.5.0** on `main`. The previous edition is preserved on the
 `v1.2.3` branch (formerly `master`); its latest release tag is `1.2.3`.
 
 ## Installation
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.4.1"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.5.0"
 ```
 
 PHP 8.1 or newer with cURL, JSON, and SimpleXML is required. Your bank must provide the gateway
@@ -46,7 +46,7 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\RequestFactoryInterface;
 The old names and filenames have been removed; there are no compatibility aliases.
 Update imports, fully qualified names, type hints, inheritance, trait references,
 and dependency injection configuration, then regenerate Composer's autoloader.
-Method names, arguments, and result array keys are unchanged.
+In 1.3.0, method names, arguments, and result array keys remained unchanged.
 `CurrencyCodes` and `OrderTypes` keep their names.
 
 See the [complete rename table and migration steps](CHANGELOG.md#130).
@@ -76,6 +76,20 @@ pre-escaping it. Malformed gateway responses throw `UnexpectedValueException`
 when parsing results directly. Status request `execute()` wraps retrieval failures
 in `Exceptions\OrderStatusRetrieveException`; missing identifiers throw
 `Exceptions\InvalidOrderId` or `Exceptions\InvalidSessionId` during request creation.
+
+## Structured result data
+
+Gateway data now uses typed objects under `Data\` with readonly camelCase properties:
+
+- Order creation: `$result->getData()->paymentUrl` and `->orderId` (`OrderData`).
+- Status lookup: `$result->getData()->orderStatus` (`OrderStatusData`).
+- Callbacks: `$handler->handle()->orderId` and `->xmlMessage` (`OrderCallbackData`).
+- HTTP metadata: `$httpResult->getInfo()->httpCode` (`HTTPInfo`).
+
+Every data object includes `__unparsed`, an array of extra gateway fields that is
+empty when no extra fields exist. XML nesting, repeated values, and attributes are
+preserved. Parsed order data fields are null when unavailable. Replace array access
+such as `$data['OrderId']` with `$data->orderId` when upgrading.
 
 ## Tests
 

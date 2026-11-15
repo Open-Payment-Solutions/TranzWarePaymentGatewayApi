@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ruleset name="TranzWare Payment Gateway">
     <rule ref="PSR12"/>
+    <rule ref="Generic.Commenting.DocComment"/>
     <arg name="extensions" value="php"/>
     <file>.</file>
     <exclude-pattern>*/vendor/*</exclude-pattern>

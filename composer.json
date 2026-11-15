@@ -39,7 +39,8 @@
       "OpenPaymentSolutions\\TranzWarePaymentGateway\\Requests\\": "src/requests/",
       "OpenPaymentSolutions\\TranzWarePaymentGateway\\Handlers\\": "src/handlers/",
       "tests\\": "tests/",
-      "OpenPaymentSolutions\\TranzWarePaymentGateway\\Exceptions\\": "src/exceptions/"
+      "OpenPaymentSolutions\\TranzWarePaymentGateway\\Exceptions\\": "src/exceptions/",
+      "OpenPaymentSolutions\\TranzWarePaymentGateway\\Data\\": "src/data/"
     }
   }
 }

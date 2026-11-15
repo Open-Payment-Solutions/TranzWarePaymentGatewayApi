@@ -17,9 +17,16 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequestResu
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\RequestInterface;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\RequestResultInterface;
 use PHPUnit\Framework\TestCase;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderCallbackData;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderData;
 
 final class PublicApiTest extends TestCase
 {
+    /**
+     * Create a request factory for testing.
+     *
+     * @return RequestFactoryInterface
+     */
     private function factory(): RequestFactoryInterface
     {
         return (new RequestFactory(
@@ -31,7 +38,12 @@ final class PublicApiTest extends TestCase
         ))->setCertificate('/test/client.crt', '/test/client.key', '');
     }
 
-    public function testFactoryCreatesOrdersAndStatusRequestsUsingShortNames()
+    /**
+     * Create order and status requests through the public API.
+     *
+     * @return void
+     */
+    public function testFactoryCreatesOrdersAndStatusRequestsUsingShortNames(): void
     {
         $factory = $this->factory();
         $purchase = $factory->createOrderPurchaseRequest(100, CurrencyCodes::USD, 'Checkout 123');
@@ -47,13 +59,27 @@ final class PublicApiTest extends TestCase
         $this->assertInstanceOf(RequestInterface::class, $status);
     }
 
-    /** @dataProvider emptyIdentifiers */
-    public function testStatusRequestStillRejectsEmptyIdentifiers($orderId, $sessionId, $exception)
+    /**
+     * Reject empty order and session identifiers.
+     *
+     * @param string $orderId
+     * @param string $sessionId
+     * @param class-string<\Throwable> $exception
+     *
+     * @dataProvider emptyIdentifiers
+     * @return       void
+     */
+    public function testStatusRequestStillRejectsEmptyIdentifiers($orderId, $sessionId, $exception): void
     {
         $this->expectException($exception);
         $this->factory()->createOrderStatusRequest($orderId, $sessionId);
     }
 
+    /**
+     * Provide invalid order and session identifiers.
+     *
+     * @return array
+     */
     public static function emptyIdentifiers(): array
     {
         return [
@@ -62,8 +88,15 @@ final class PublicApiTest extends TestCase
         ];
     }
 
-    /** @dataProvider callbackMessages */
-    public function testCallbackFactoryParsesXmlAndBase64($message)
+    /**
+     * Parse raw XML and base64 callback messages.
+     *
+     * @param string $message
+     *
+     * @dataProvider callbackMessages
+     * @return       void
+     */
+    public function testCallbackFactoryParsesXmlAndBase64($message): void
     {
         $previous = $_REQUEST;
         try {
@@ -72,19 +105,27 @@ final class PublicApiTest extends TestCase
             $this->assertInstanceOf(HandlerFactoryInterface::class, $factory);
             $handler = $factory->createOrderCallbackHandler();
             $this->assertInstanceOf(HandlerInterface::class, $handler);
+            $data = $handler->handle();
+            $this->assertInstanceOf(OrderCallbackData::class, $data);
             $this->assertSame([
-                'DateTime' => '2026-11-13 12:00:00',
-                'OrderId' => '123',
-                'Amount' => '100',
-                'Currency' => '840',
-                'OrderStatus' => 'APPROVED',
-                'xmlmsg' => $message,
-            ], $handler->handle());
+                'dateTime' => '2026-11-13 12:00:00',
+                'orderId' => '123',
+                'amount' => '100',
+                'currency' => '840',
+                'orderStatus' => 'APPROVED',
+                'xmlMessage' => $message,
+                '__unparsed' => [],
+            ], get_object_vars($data));
         } finally {
             $_REQUEST = $previous;
         }
     }
 
+    /**
+     * Provide raw XML and base64 callback messages.
+     *
+     * @return array
+     */
     public static function callbackMessages(): array
     {
         $xml = '<Order><TranDateTime>2026-11-13 12:00:00</TranDateTime>'
@@ -93,7 +134,12 @@ final class PublicApiTest extends TestCase
         return [[$xml], [base64_encode($xml)]];
     }
 
-    public function testCreationResultExposesPaymentIdentifiersThroughRenamedInterfaces()
+    /**
+     * Expose payment identifiers through the public result interfaces.
+     *
+     * @return void
+     */
+    public function testCreationResultExposesPaymentIdentifiersThroughRenamedInterfaces(): void
     {
         $httpResult = new HTTPClientResult(
             '<TKKPG><Response><Status>00</Status><Order><OrderID>123</OrderID>'
@@ -108,16 +154,26 @@ final class PublicApiTest extends TestCase
         $this->assertSame(200, $result->getHttpStatus());
         $this->assertSame('00', $result->getStatus());
         $this->assertTrue($result->success());
+        $this->assertInstanceOf(OrderData::class, $result->getData());
         $this->assertSame([
-            'URL' => 'https://gateway.example/pay',
-            'OrderId' => '123',
-            'SessionId' => 'session-test',
-            'PaymentUrl' => 'https://gateway.example/pay?ORDERID=123&SESSIONID=session-test',
-        ], $result->getData());
+            'url' => 'https://gateway.example/pay',
+            'orderId' => '123',
+            'sessionId' => 'session-test',
+            'paymentUrl' => 'https://gateway.example/pay?ORDERID=123&SESSIONID=session-test',
+            '__unparsed' => [],
+        ], get_object_vars($result->getData()));
     }
 
-    /** @dataProvider orderStatuses */
-    public function testStatusResultDistinguishesApprovalFromDecline($status, $approved)
+    /**
+     * Distinguish approved and declined order statuses.
+     *
+     * @param string $status
+     * @param bool $approved
+     *
+     * @dataProvider orderStatuses
+     * @return       void
+     */
+    public function testStatusResultDistinguishesApprovalFromDecline($status, $approved): void
     {
         $result = new OrderStatusRequestResult(new HTTPClientResult(
             '<TKKPG><Response><Status>00</Status><Order><OrderID>123</OrderID>'
@@ -127,10 +183,15 @@ final class PublicApiTest extends TestCase
 
         $this->assertInstanceOf(RequestResultInterface::class, $result);
         $this->assertSame('00', $result->getStatus());
-        $this->assertSame($status, $result->getData()['OrderStatus']);
+        $this->assertSame($status, $result->getData()->orderStatus);
         $this->assertSame($approved, $result->success());
     }
 
+    /**
+     * Provide approved and declined order outcomes.
+     *
+     * @return array
+     */
     public static function orderStatuses(): array
     {
         return [['APPROVED', true], ['DECLINED', false]];

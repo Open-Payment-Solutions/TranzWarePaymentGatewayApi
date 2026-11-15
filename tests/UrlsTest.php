@@ -9,6 +9,11 @@ use PHPUnit\Framework\TestCase;
 
 final class UrlsTest extends TestCase
 {
+    /**
+     * Keep unconfigured URLs empty.
+     *
+     * @return void
+     */
     public function testUrlsStartEmpty(): void
     {
         $urls = new Urls();
@@ -18,6 +23,11 @@ final class UrlsTest extends TestCase
         $this->assertSame('', $urls->getOnOrderCanceledUrl());
     }
 
+    /**
+     * Allow URL setters to be chained and updated independently.
+     *
+     * @return void
+     */
     public function testUrlsCanBeChainedAndUpdatedIndependently(): void
     {
         $urls = new Urls();
@@ -33,6 +43,11 @@ final class UrlsTest extends TestCase
         $this->assertSame('https://shop.example/canceled', $urls->getOnOrderCanceledUrl());
     }
 
+    /**
+     * Match currency enum values to gateway codes.
+     *
+     * @return void
+     */
     public function testCurrencyCodesMatchGatewayValues(): void
     {
         $this->assertSame(['840', '978', '944', '643', '938'], [

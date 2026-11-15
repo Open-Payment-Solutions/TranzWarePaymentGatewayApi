@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.5.0
+
+### Breaking changes
+
+- Return typed data objects from order results, callback handlers, and HTTP metadata
+  accessors. Use readonly camelCase properties instead of array keys. Every data
+  object includes `__unparsed` for extra gateway fields, preserving XML nesting,
+  repeated elements, attributes, namespaces, and mixed text. Missing order fields
+  are null, including empty or rejected creation results.
+### Documentation and tooling
+
+- Complete the request factory interface and add missing native void return types
+  to test methods.
+- Complete PHPDoc descriptions, parameter and return annotations, and sample file
+  descriptions. Include PHPDoc checks in the PHPCS ruleset.
+
 ## 1.4.1
 
 - Apply PSR-12 coding standards across source files, tests, and samples, fixing

@@ -21,9 +21,9 @@ class HTTPClient implements HTTPClientInterface
      * HTTPClient constructor.
      *
      * @param string $url
-     * @param null   $body
-     * @param null   $ssl
-     * @param bool   $strictSSL
+     * @param string|null $body
+     * @param array|null $ssl
+     * @param bool $strictSSL
      */
     public function __construct(
         string $url,
@@ -41,6 +41,8 @@ class HTTPClient implements HTTPClientInterface
      * Set debug to log file
      *
      * @param string $path_to_file
+     *
+     * @return void
      */
     final public function setDebugToFile(string $path_to_file): void
     {
