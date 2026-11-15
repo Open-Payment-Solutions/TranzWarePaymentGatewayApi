@@ -11,7 +11,7 @@
 PHP library for creating orders, checking order status, and parsing callbacks from
 Compass Plus TranzWare Payment Gateway (also known as TWEC PG).
 
-The current edition is **1.5.1** on `main`. The original edition is preserved on
+The current edition is **1.5.2** on `main`. The original edition is preserved on
 `v1.2.3` (formerly `master`), with release tag `1.2.3`.
 
 ## Installation
@@ -37,7 +37,7 @@ Keep the version free of `^` or `~` prefixes when you require the original API.
 For a new integration, or after migrating to the current API:
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.5.1"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.5.2"
 ```
 
 The current edition requires **PHP 8.2 or newer**, cURL, JSON, mbstring, and SimpleXML.
@@ -66,6 +66,7 @@ and the [changelog](CHANGELOG.md).
 | 1.4.1 | PSR-12 formatting and coding standard checks across source, tests, and samples. |
 | 1.5.0 | Typed data objects with camelCase properties and `__unparsed`; complete factory interface and PHPDoc. |
 | 1.5.1 | PHP 8.2 minimum, refreshed dependencies and test tooling, and explicit compatibility guidance. |
+| 1.5.2 | Track `composer.lock` for reproducible development and CI dependency installs. |
 
 ### Public API names
 
@@ -184,6 +185,11 @@ against current stable releases while respecting the PHP minimum. PHPUnit data
 providers use `#[DataProvider(...)]` attributes; PHPDoc retains their parameter
 and return documentation.
 
+The committed `composer.lock` pins the development and CI dependencies. Run
+`composer install` to reproduce them; use `composer update` when deliberately
+refreshing dependency versions. Applications consuming this library use their
+own lock file.
+
 Tests simulate transport calls and do not contact a payment gateway. For coverage,
 use `composer test:coverage` with Xdebug or PCOV enabled. CI runs
 coding standards, tests, and coverage on PHP 8.2 through 8.5. Version tags trigger
@@ -207,7 +213,9 @@ composer install
 ```
 
 The `v1.2.3` branch preserves the former `master` checkout, including README
-updates made after the `1.2.3` tag. For the exact released source, use tag `1.2.3`
+updates made after the `1.2.3` tag. The original `1.2.3` tag stays unchanged;
+compatibility warnings are provided on the legacy branch and in its
+[release notes](https://github.com/Open-Payment-Solutions/TranzWarePaymentGatewayApi/releases/tag/1.2.3). For the exact released source, use tag `1.2.3`
 or the strict Composer requirement. Existing clones can run `git fetch origin`
 and then `git switch v1.2.3` for the previous edition or `git switch main` for the
 current edition.

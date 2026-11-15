@@ -55,6 +55,31 @@ def release_notes(version):
     return notes
 
 
+
+def warn_legacy_release():
+    release = request('GET', '/releases/tags/1.2.3')
+    marker = '<!-- legacy-1.2.3-compatibility-warning -->'
+    original = release.get('body') or ''
+    if marker not in original:
+        repository = os.environ['GITHUB_REPOSITORY']
+        warning = (
+            f'{marker}\n'
+            '> [!WARNING]\n'
+            '> **Breaking changes after 1.2.3.** Versions greater than `1.2.3` '
+            '(`> 1.2.3`, not including `1.2.3`) are not backward compatible with the original API.\n'
+            '> For existing integrations, use the strict requirement **`"1.2.3"`**, '
+            'without `^` or `~` prefixes, or migrate and test against the latest version.\n'
+            '> `composer require open-payment-solutions/tranzware-payment-gateway:"1.2.3"`\n'
+            f'> See the [current README](https://github.com/{repository}/blob/main/README.md) '
+            f'and [migration guide](https://github.com/{repository}/blob/main/docs/README.md).\n\n'
+        )
+        request('PATCH', f'/releases/{release["id"]}', {'body': warning + original})
+    verified = request('GET', '/releases/tags/1.2.3')
+    if marker not in (verified.get('body') or ''):
+        raise RuntimeError('The 1.2.3 compatibility warning was not saved')
+    print('Updated 1.2.3 release notes; the original Git tag is unchanged.')
+
+
 def main():
     version = os.environ['GITHUB_REF_NAME']
     if not re.fullmatch(r'\d+\.\d+\.\d+', version) or Path('VERSION').read_text().strip() != version:
@@ -75,6 +100,8 @@ def main():
     if verified['id'] != release['id'] or verified['draft'] or verified['prerelease']:
         raise RuntimeError('The GitHub release was not published as a stable release')
     print(f'Published {verified["html_url"]}')
+    if version == '1.5.2':
+        warn_legacy_release()
     if version == '1.5.1':
         obsolete = request('GET', '/releases/tags/1.5.0', allow_missing=True)
         if obsolete is not None:

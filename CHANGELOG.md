@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.2
+
+- Commit the root `composer.lock` file and stop ignoring it, so development and CI
+  install the same validated dependency versions.
+- Update installation instructions and sample dependencies to 1.5.2.
+- Add strict-version and migration guidance to the original 1.2.3 release notes,
+  preserving the original Git tag and existing release text.
+
 ## 1.5.1
 
 - Raise the minimum PHP version to 8.2 and update the CI matrix.
