@@ -27,7 +27,12 @@ interface RequestInterface
      *
      * @return void
      */
-    public function setSslCertificate(?string $cert, ?string $key, ?string $keyPass = '', ?bool $strictSSL = true): void;
+    public function setSslCertificate(
+        ?string $cert,
+        ?string $key,
+        ?string $keyPass = '',
+        ?bool $strictSSL = true,
+    ): void;
 
     /**
      * Enable/Disable strict SSL mode.

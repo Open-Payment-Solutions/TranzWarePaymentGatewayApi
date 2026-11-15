@@ -45,11 +45,20 @@ final class SamplesTest extends TestCase
     public static function rejectedOrders(): array
     {
         return [
-            'gateway rejects creation' => [['body' => self::orderResponse('30'), 'http_code' => 200], 'Gateway rejected order creation.'],
-            'unsuccessful HTTP status' => [['body' => self::orderResponse(), 'http_code' => 500], 'Gateway rejected order creation.'],
+            'gateway rejects creation' => [
+                ['body' => self::orderResponse('30'), 'http_code' => 200],
+                'Gateway rejected order creation.',
+            ],
+            'unsuccessful HTTP status' => [
+                ['body' => self::orderResponse(), 'http_code' => 500],
+                'Gateway rejected order creation.',
+            ],
             'transport failure' => [['body' => false, 'http_code' => 0], 'Gateway rejected order creation.'],
             'malformed XML' => [['body' => 'invalid XML', 'http_code' => 200], 'Invalid gateway response'],
-            'missing payment identifiers' => [['body' => '<TKKPG><Response><Status>00</Status><Order/></Response></TKKPG>', 'http_code' => 200], 'Incomplete gateway order response'],
+            'missing payment identifiers' => [
+                ['body' => '<TKKPG><Response><Status>00</Status><Order/></Response></TKKPG>', 'http_code' => 200],
+                'Incomplete gateway order response',
+            ],
         ];
     }
 
@@ -57,7 +66,10 @@ final class SamplesTest extends TestCase
     {
         $result = $this->runSample('create.php', ['body' => self::orderResponse(), 'http_code' => 200]);
         $this->assertSame(200, $result['status']);
-        $this->assertSame('<a href="https://gateway.example/pay?ORDERID=123&amp;SESSIONID=session">LINK TO PAYMENT</a>', $result['output']);
+        $this->assertSame(
+            '<a href="https://gateway.example/pay?ORDERID=123&amp;SESSIONID=session">LINK TO PAYMENT</a>',
+            $result['output']
+        );
     }
 
     /** @dataProvider invalidCallbacks */
@@ -124,8 +136,11 @@ final class SamplesTest extends TestCase
     }
 
     /** @dataProvider failedStatusRequests */
-    public function testStatusSampleDistinguishesValidationFromRetrievalFailures(array $scenario, int $status, string $message): void
-    {
+    public function testStatusSampleDistinguishesValidationFromRetrievalFailures(
+        array $scenario,
+        int $status,
+        string $message,
+    ): void {
         $result = $this->runSample('get_status.php', $scenario);
         $this->assertSame($status, $result['status']);
         $this->assertSame($message, $result['output']);
@@ -139,8 +154,20 @@ final class SamplesTest extends TestCase
             [['get' => ['ORDERID' => '123']], 400, 'Invalid session ID'],
             [['get' => ['ORDERID' => '', 'SESSIONID' => 'session']], 400, 'Invalid order ID'],
             [['get' => ['ORDERID' => '123', 'SESSIONID' => ' ']], 400, 'Invalid session ID'],
-            [['get' => ['ORDERID' => '123', 'SESSIONID' => 'session'], 'body' => false], 502, 'Unable to retrieve order status.'],
-            [['get' => ['ORDERID' => '123', 'SESSIONID' => 'session'], 'body' => 'invalid XML', 'http_code' => 200], 502, 'Unable to retrieve order status.'],
+            [
+                ['get' => ['ORDERID' => '123', 'SESSIONID' => 'session'], 'body' => false],
+                502,
+                'Unable to retrieve order status.',
+            ],
+            [
+                [
+                    'get' => ['ORDERID' => '123', 'SESSIONID' => 'session'],
+                    'body' => 'invalid XML',
+                    'http_code' => 200,
+                ],
+                502,
+                'Unable to retrieve order status.',
+            ],
         ];
     }
 }

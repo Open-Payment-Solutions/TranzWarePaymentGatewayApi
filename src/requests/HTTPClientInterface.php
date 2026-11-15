@@ -17,7 +17,12 @@ interface HTTPClientInterface
      * @param null   $sslCertificate
      * @param bool   $strictSSL
      */
-    public function __construct(string $url, ?string $body = null, ?array $sslCertificate = null, bool $strictSSL = true);
+    public function __construct(
+        string $url,
+        ?string $body = null,
+        ?array $sslCertificate = null,
+        bool $strictSSL = true,
+    );
 
     /**
      * @param  string $path_to_file

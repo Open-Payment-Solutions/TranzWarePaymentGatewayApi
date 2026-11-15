@@ -1,12 +1,12 @@
 <?php
 
-$autoloadFile = __DIR__.'/vendor/autoload.php';
-require_once is_file($autoloadFile) ? $autoloadFile : __DIR__.'/../vendor/autoload.php';
+$autoloadFile = __DIR__ . '/vendor/autoload.php';
+require_once is_file($autoloadFile) ? $autoloadFile : __DIR__ . '/../vendor/autoload.php';
 
-use \OpenPaymentSolutions\TranzWarePaymentGateway\RequestFactory;
-use \OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderId;
-use \OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidSessionId;
-use \OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\OrderStatusRetrieveException;
+use OpenPaymentSolutions\TranzWarePaymentGateway\RequestFactory;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderId;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidSessionId;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\OrderStatusRetrieveException;
 
 $orderId = $_GET['ORDERID'] ?? null;
 $sessionId = $_GET['SESSIONID'] ?? null;
@@ -23,14 +23,14 @@ $requestFactory = new RequestFactory(
     'https://your-site-address-here/samples/order_canceled.php',
     'EN'
 );
-$keyFile = __DIR__.'/certificates/your-private-key.pem';
-$keyPass = file_get_contents(__DIR__.'/certificates/your-private-key-pass.txt');
-$certFile = __DIR__.'/certificates/cert-signed-by-payment-gateway-part.crt';
+$keyFile = __DIR__ . '/certificates/your-private-key.pem';
+$keyPass = file_get_contents(__DIR__ . '/certificates/your-private-key-pass.txt');
+$certFile = __DIR__ . '/certificates/cert-signed-by-payment-gateway-part.crt';
 try {
     $requestFactory
         ->setCertificate($certFile, $keyFile, $keyPass)
         ->enableSSLVerification()
-        ->setDebugFile(__DIR__.'/debug.log');
+        ->setDebugFile(__DIR__ . '/debug.log');
 
     $orderStatusRequest = $requestFactory->createOrderStatusRequest($orderId, $sessionId);
     $orderStatusRequestResult = $orderStatusRequest->execute();

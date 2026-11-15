@@ -2,9 +2,8 @@
 
 namespace tests;
 
-use \OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
-
-use \PHPUnit\Framework\TestCase;
+use OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
+use PHPUnit\Framework\TestCase;
 
 final class OrderTypesTest extends TestCase
 {

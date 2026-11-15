@@ -1,14 +1,8 @@
 <?php
 
-namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
-
-function fopen(string $path, string $mode)
-{
-    return \fopen('php://temp', $mode);
-}
-
 namespace tests\fixtures;
 
+require __DIR__ . '/DebugStream.php';
 require __DIR__ . '/../bootstrap.php';
 
 $scenario = json_decode($argv[2], true, 512, JSON_THROW_ON_ERROR);

@@ -33,8 +33,12 @@ final class OrderStatusRequestTest extends TestCase
     }
 
     /** @dataProvider invalidIdentifiers */
-    public function testMissingIdentifiersAreRejectedBeforeTransport(bool $factory, ?string $orderId, ?string $sessionId, string $exception): void
-    {
+    public function testMissingIdentifiersAreRejectedBeforeTransport(
+        bool $factory,
+        ?string $orderId,
+        ?string $sessionId,
+        string $exception,
+    ): void {
         $this->expectException($exception);
         $this->expectExceptionMessage($exception === InvalidOrderId::class ? 'Invalid order ID' : 'Invalid session ID');
         try {
@@ -62,8 +66,11 @@ final class OrderStatusRequestTest extends TestCase
     }
 
     /** @dataProvider failedResponses */
-    public function testRetrievalFailuresUseSpecificExceptionAndPreserveCause(string|false $body, int $httpStatus, string $cause): void
-    {
+    public function testRetrievalFailuresUseSpecificExceptionAndPreserveCause(
+        string|false $body,
+        int $httpStatus,
+        string $cause,
+    ): void {
         Transport::$output = $body;
         Transport::$info = ['http_code' => $httpStatus];
         try {
@@ -84,14 +91,29 @@ final class OrderStatusRequestTest extends TestCase
             [self::response('00', 'APPROVED'), 500, \RuntimeException::class],
             [self::response('30', 'APPROVED'), 200, \UnexpectedValueException::class],
             [self::response('00', ''), 200, \UnexpectedValueException::class],
-            ['<TKKPG><Response><Status>30</Status><Details>Unknown order</Details></Response></TKKPG>', 200, \Exception::class],
-            ['<TKKPG><Response><Status>00</Status><Order><OrderID>123</OrderID></Order></Response></TKKPG>', 200, \UnexpectedValueException::class],
+            [
+                '<TKKPG><Response><Status>30</Status><Details>Unknown order</Details></Response></TKKPG>',
+                200,
+                \Exception::class,
+            ],
+            [
+                '<TKKPG><Response><Status>00</Status><Order><OrderID>123</OrderID></Order></Response></TKKPG>',
+                200,
+                \UnexpectedValueException::class,
+            ],
         ];
     }
 
     public function testTransportSetupFailureIsWrapped(): void
     {
-        $request = new OrderStatusRequest('https://gateway.example', 'merchant', '123', 'session', 'EN', '/nonexistent-twpg-directory/debug.log');
+        $request = new OrderStatusRequest(
+            'https://gateway.example',
+            'merchant',
+            '123',
+            'session',
+            'EN',
+            '/nonexistent-twpg-directory/debug.log'
+        );
         $this->expectException(OrderStatusRetrieveException::class);
         $request->execute();
     }

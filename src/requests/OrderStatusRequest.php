@@ -31,8 +31,12 @@ class OrderStatusRequest implements RequestInterface
      * @throws InvalidSessionId
      */
     public function __construct(
-        string $requestUrl, string $merchantId, ?string $orderId, ?string $sessionId,
-        string $lang = 'EN', ?string $debugToFile = null
+        string $requestUrl,
+        string $merchantId,
+        ?string $orderId,
+        ?string $sessionId,
+        string $lang = 'EN',
+        ?string $debugToFile = null
     ) {
         if ($orderId === null || trim($orderId) === '') {
             throw new InvalidOrderId();
@@ -86,7 +90,11 @@ class OrderStatusRequest implements RequestInterface
         $templateFile = __DIR__ . '/templates/OrderStatusRequestBodyTemplate.xml';
         $body = file_get_contents($templateFile);
         foreach ($this->requestAttributes as $key => $value) {
-            $body = str_replace('{{' . $key . '}}', htmlspecialchars((string)$value, ENT_XML1 | ENT_QUOTES, 'UTF-8'), $body);
+            $body = str_replace(
+                '{{' . $key . '}}',
+                htmlspecialchars((string)$value, ENT_XML1 | ENT_QUOTES, 'UTF-8'),
+                $body
+            );
         }
         return $body;
     }

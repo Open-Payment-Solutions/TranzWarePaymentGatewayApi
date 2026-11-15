@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.1
+
+- Apply PSR-12 coding standards across source files, tests, and samples, fixing
+  PHPCS errors and warnings while preserving existing comments.
+- Add a project PHPCS ruleset, `composer lint` and `composer format` commands,
+  and coding standard checks in CI.
+- Separate the sample test runner's debug stream function into its own fixture.
+
 ## 1.4.0
 
 ### Breaking changes

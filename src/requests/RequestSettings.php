@@ -19,8 +19,12 @@ trait RequestSettings
      *
      * @return void
      */
-    final public function setSslCertificate(?string $cert, ?string $key, ?string $keyPass = '', ?bool $strictSSL = true): void
-    {
+    final public function setSslCertificate(
+        ?string $cert,
+        ?string $key,
+        ?string $keyPass = '',
+        ?bool $strictSSL = true,
+    ): void {
         $this->sslKey = $key;
         $this->sslKeyPass = $keyPass;
         $this->sslCertificate = $cert;

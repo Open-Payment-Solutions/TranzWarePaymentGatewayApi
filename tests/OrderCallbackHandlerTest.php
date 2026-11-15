@@ -10,8 +10,11 @@ use PHPUnit\Framework\TestCase;
 final class OrderCallbackHandlerTest extends TestCase
 {
     /** @dataProvider invalidMessages */
-    public function testInvalidCallbacksThrowSpecificExceptions(array $request, string $exception, string $message): void
-    {
+    public function testInvalidCallbacksThrowSpecificExceptions(
+        array $request,
+        string $exception,
+        string $message,
+    ): void {
         $previous = $_REQUEST;
         try {
             $_REQUEST = $request;

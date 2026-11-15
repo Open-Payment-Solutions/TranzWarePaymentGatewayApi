@@ -32,9 +32,20 @@ class OrderCallbackHandler implements HandlerInterface
         $xmlmsg = @simplexml_load_string($message, \SimpleXMLElement::class, LIBXML_NONET);
         if ($xmlmsg === false) {
             $decoded = base64_decode($message, true);
-            $xmlmsg = $decoded === false ? false : @simplexml_load_string($decoded, \SimpleXMLElement::class, LIBXML_NONET);
+            $xmlmsg = $decoded === false
+                ? false
+                : @simplexml_load_string($decoded, \SimpleXMLElement::class, LIBXML_NONET);
         }
-        if ($xmlmsg === false || !isset($xmlmsg->TranDateTime, $xmlmsg->OrderID, $xmlmsg->PurchaseAmount, $xmlmsg->Currency, $xmlmsg->OrderStatus)) {
+        if (
+            $xmlmsg === false
+            || !isset(
+                $xmlmsg->TranDateTime,
+                $xmlmsg->OrderID,
+                $xmlmsg->PurchaseAmount,
+                $xmlmsg->Currency,
+                $xmlmsg->OrderStatus
+            )
+        ) {
             throw new InvalidXMLMessage();
         }
 

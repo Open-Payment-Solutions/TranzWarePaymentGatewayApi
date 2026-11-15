@@ -47,11 +47,14 @@ class OrderStatusRequestResult implements RequestResultInterface
         $this->details = (string)($response->Details ?? '');
 
         if (!isset($order->OrderStatus) && !isset($order->OrderID)) {
-          if ($this->details) {
-            throw new Exception($this->details);
-          }
+            if ($this->details) {
+                throw new Exception($this->details);
+            }
 
-          throw new Exception('Unhandled situation. Please inform about it by opening issue in repository. XML Body: '.$this->responseBody);
+            throw new Exception(
+                'Unhandled situation. Please inform about it by opening issue in repository. XML Body: '
+                . $this->responseBody
+            );
         }
 
         $this->data = [
@@ -82,7 +85,7 @@ class OrderStatusRequestResult implements RequestResultInterface
 
     final public function getDetails(): string
     {
-      return $this->details;
+        return $this->details;
     }
 
     final public function getData(): ?array

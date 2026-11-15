@@ -19,7 +19,8 @@ final class RequestsTest extends TestCase
         Transport::$enabled = true;
         Transport::$options = [];
         Transport::$output = '<TKKPG><Response><Status>00</Status><Order><URL>https://pay.example</URL>'
-            . '<OrderID>123</OrderID><SessionID>session</SessionID><OrderStatus>APPROVED</OrderStatus></Order></Response></TKKPG>';
+            . '<OrderID>123</OrderID><SessionID>session</SessionID>'
+            . '<OrderStatus>APPROVED</OrderStatus></Order></Response></TKKPG>';
         Transport::$info = ['http_code' => 200];
     }
 
@@ -31,9 +32,14 @@ final class RequestsTest extends TestCase
 
     private function factory(): RequestFactory
     {
-        return new RequestFactory('https://gateway.example', 'merchant&123',
-            'https://shop.example/approved?a=1&b=2', 'https://shop.example/declined',
-            'https://shop.example/canceled', 'AZ');
+        return new RequestFactory(
+            'https://gateway.example',
+            'merchant&123',
+            'https://shop.example/approved?a=1&b=2',
+            'https://shop.example/declined',
+            'https://shop.example/canceled',
+            'AZ'
+        );
     }
 
     /** @dataProvider orderTypes */
@@ -123,7 +129,12 @@ final class RequestsTest extends TestCase
     public function testConvenienceMethodsSelectCorrectOrderTypes(): void
     {
         $factory = $this->factory();
-        foreach (['createOrderPurchaseRequest' => 'Purchase', 'createOrderPreAuthRequest' => 'PreAuth'] as $method => $expected) {
+        foreach (
+            [
+            'createOrderPurchaseRequest' => 'Purchase',
+            'createOrderPreAuthRequest' => 'PreAuth',
+            ] as $method => $expected
+        ) {
             $factory->$method(1, '840')->execute();
             $xml = simplexml_load_string(Transport::$options[CURLOPT_POSTFIELDS]);
             $this->assertSame($expected, (string)$xml->Request->Order->OrderType);
@@ -136,7 +147,12 @@ final class RequestsTest extends TestCase
         try {
             $factory = $this->factory();
             $this->assertSame($factory, $factory->setDebugFile($file));
-            foreach ([$factory->createOrderRequest(1, '840'), $factory->createOrderStatusRequest('1', 's')] as $request) {
+            foreach (
+                [
+                $factory->createOrderRequest(1, '840'),
+                $factory->createOrderStatusRequest('1', 's'),
+                ] as $request
+            ) {
                 $request->execute();
                 $this->assertTrue(Transport::$options[CURLOPT_VERBOSE]);
                 $this->assertStringContainsString('<TKKPG>', file_get_contents($file));

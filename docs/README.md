@@ -1,4 +1,4 @@
-# Integration guide — 1.4.0
+# Integration guide — 1.4.1
 
 This guide uses the shortened API names introduced in 1.3.0 on `main`.
 For the original names, use [edition 1.2.3](../README.md#using-the-previous-edition-123).
@@ -7,7 +7,7 @@ When upgrading, follow the [migration instructions](../CHANGELOG.md#130).
 ## Install
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.4.0"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.4.1"
 ```
 
 Enable PHP's cURL, JSON, and SimpleXML extensions. Obtain your merchant ID,

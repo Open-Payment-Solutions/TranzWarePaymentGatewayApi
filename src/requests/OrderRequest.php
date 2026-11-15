@@ -33,17 +33,32 @@ class OrderRequest implements RequestInterface
      * @param string                                             $debugToFile
      */
     public function __construct(
-        string $requestUrl, string $approvalUrl, string $declineUrl, string $cancelUrl,
-        OrderTypes|string $orderType, string $merchantId, float $amount, CurrencyCodes|string $currency,
-        string $description = '', string $lang = 'EN', ?string $debugToFile = null
+        string $requestUrl,
+        string $approvalUrl,
+        string $declineUrl,
+        string $cancelUrl,
+        OrderTypes|string $orderType,
+        string $merchantId,
+        float $amount,
+        CurrencyCodes|string $currency,
+        string $description = '',
+        string $lang = 'EN',
+        ?string $debugToFile = null
     ) {
         $orderType = OrderTypes::fromString($orderType)->value;
         $currency = $currency instanceof CurrencyCodes ? $currency->value : $currency;
         $this->requestAttributes =
             compact(
-                'requestUrl', 'approvalUrl', 'declineUrl', 'cancelUrl',
-                'orderType', 'merchantId', 'amount', 'currency',
-                'description', 'lang'
+                'requestUrl',
+                'approvalUrl',
+                'declineUrl',
+                'cancelUrl',
+                'orderType',
+                'merchantId',
+                'amount',
+                'currency',
+                'description',
+                'lang'
             );
         $this->debugToFile = $debugToFile;
     }
@@ -70,10 +85,14 @@ class OrderRequest implements RequestInterface
     private function getRequestBody(): string
     {
         $orderType = OrderTypes::fromString($this->requestAttributes['orderType'])->value;
-        $templateFile = __DIR__ . '/templates/'.$orderType.'OrderRequestBodyTemplate.xml';
+        $templateFile = __DIR__ . '/templates/' . $orderType . 'OrderRequestBodyTemplate.xml';
         $body = file_get_contents($templateFile);
         foreach ($this->requestAttributes as $key => $value) {
-            $body = str_replace('{{' . $key . '}}', htmlspecialchars((string)$value, ENT_XML1 | ENT_QUOTES, 'UTF-8'), $body);
+            $body = str_replace(
+                '{{' . $key . '}}',
+                htmlspecialchars((string)$value, ENT_XML1 | ENT_QUOTES, 'UTF-8'),
+                $body
+            );
         }
         return $body;
     }

@@ -58,7 +58,10 @@ final class RequestResultsTest extends TestCase
     public function testSuccessfulOrderWithMissingIdentifiersThrows(): void
     {
         $this->expectException(\UnexpectedValueException::class);
-        new OrderRequestResult(new HTTPClientResult('<TKKPG><Response><Status>00</Status><Order/></Response></TKKPG>', []));
+        new OrderRequestResult(new HTTPClientResult(
+            '<TKKPG><Response><Status>00</Status><Order/></Response></TKKPG>',
+            []
+        ));
     }
 
     /** @dataProvider statuses */
@@ -85,7 +88,8 @@ final class RequestResultsTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage($message);
         new OrderStatusRequestResult(new HTTPClientResult(
-            '<TKKPG><Response><Status>30</Status>' . $details . '</Response></TKKPG>', []
+            '<TKKPG><Response><Status>30</Status>' . $details . '</Response></TKKPG>',
+            []
         ));
     }
 
@@ -107,7 +111,8 @@ final class RequestResultsTest extends TestCase
     public function testOrderIdAloneDoesNotMeanApproved(): void
     {
         $result = new OrderStatusRequestResult(new HTTPClientResult(
-            '<TKKPG><Response><Status>00</Status><Order><OrderID>123</OrderID></Order></Response></TKKPG>', []
+            '<TKKPG><Response><Status>00</Status><Order><OrderID>123</OrderID></Order></Response></TKKPG>',
+            []
         ));
         $this->assertSame(['OrderId' => '123', 'OrderStatus' => null], $result->getData());
         $this->assertFalse($result->success());

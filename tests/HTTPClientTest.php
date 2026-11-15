@@ -68,7 +68,10 @@ final class HTTPClientTest extends TestCase
         (new HTTPClient('https://gateway.example', null, ['cert' => '/cert', 'key' => '/key']))->execute();
         $this->assertArrayNotHasKey(CURLOPT_SSLCERTPASSWD, Transport::$options);
         $this->assertArrayNotHasKey(CURLOPT_CAINFO, Transport::$options);
-        $this->assertSame(['Content-Type: application/xml', 'Content-Length: 0'], Transport::$options[CURLOPT_HTTPHEADER]);
+        $this->assertSame(
+            ['Content-Type: application/xml', 'Content-Length: 0'],
+            Transport::$options[CURLOPT_HTTPHEADER]
+        );
     }
 
     public function testTransportFailureIsPreserved(): void

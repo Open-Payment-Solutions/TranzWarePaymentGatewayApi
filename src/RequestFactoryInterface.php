@@ -22,8 +22,11 @@ interface RequestFactoryInterface
      * @param string $LANG (optional)
      */
     public function __construct(
-        string $GATEWAY_URL, string $MERCHANT_ID,
-        string $ON_ORDER_APPROVED_URL, string $ON_ORDER_DECLINED_URL, string $ON_ORDER_CANCELED_URL,
+        string $GATEWAY_URL,
+        string $MERCHANT_ID,
+        string $ON_ORDER_APPROVED_URL,
+        string $ON_ORDER_DECLINED_URL,
+        string $ON_ORDER_CANCELED_URL,
         string $LANG = 'EN'
     );
 
@@ -43,7 +46,12 @@ interface RequestFactoryInterface
      *
      * @return RequestInterface
      */
-    public function createOrderRequest(float $amount, CurrencyCodes|string $currency, string $description = '', OrderTypes|string $orderType = OrderTypes::PURCHASE): RequestInterface;
+    public function createOrderRequest(
+        float $amount,
+        CurrencyCodes|string $currency,
+        string $description = '',
+        OrderTypes|string $orderType = OrderTypes::PURCHASE,
+    ): RequestInterface;
 
     /**
      * @param string|null $orderId

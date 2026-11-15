@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="TranzWare Payment Gateway">
+    <rule ref="PSR12"/>
+    <arg name="extensions" value="php"/>
+    <file>.</file>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+</ruleset>

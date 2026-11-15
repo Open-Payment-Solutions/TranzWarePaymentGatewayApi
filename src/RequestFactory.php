@@ -25,7 +25,8 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequest;
  *  $requestFactory->setCertificate($certFile, $keyFile, $keyPass);
  *  $requestFactory->enableSSLVerification();
  *
- *  $orderRequest = $requestFactory->createOrderRequest(1, CurrencyCodes::USD, 'TEST PAYMENT #1'); // --> instance of Requests\RequestInterface
+ *  $orderRequest = $requestFactory->createOrderRequest(1, CurrencyCodes::USD, 'TEST PAYMENT #1');
+ *  // --> instance of Requests\RequestInterface
  *
  * Class RequestFactory
  *
@@ -44,8 +45,11 @@ class RequestFactory implements RequestFactoryInterface
      * @param string $LANG (optional)
      */
     public function __construct(
-        string $GATEWAY_URL, string $MERCHANT_ID,
-        string $ON_ORDER_APPROVED_URL, string $ON_ORDER_DECLINED_URL, string $ON_ORDER_CANCELED_URL,
+        string $GATEWAY_URL,
+        string $MERCHANT_ID,
+        string $ON_ORDER_APPROVED_URL,
+        string $ON_ORDER_DECLINED_URL,
+        string $ON_ORDER_CANCELED_URL,
         string $LANG = 'EN'
     ) {
         $this->MERCHANT_ID = $MERCHANT_ID;
@@ -74,8 +78,12 @@ class RequestFactory implements RequestFactoryInterface
      *
      * @return RequestFactory
      */
-    final public function setCertificate(string $certFile, string $keyFile, ?string $keyPass = '', ?bool $strictSSL = null): self
-    {
+    final public function setCertificate(
+        string $certFile,
+        string $keyFile,
+        ?string $keyPass = '',
+        ?bool $strictSSL = null,
+    ): self {
         $this->sslKey = $keyFile;
         $this->sslKeyPass = $keyPass;
         $this->sslCertificate = $certFile;
@@ -83,8 +91,7 @@ class RequestFactory implements RequestFactoryInterface
             if (is_null($this->strictSSL)) {
                 $this->enableSSLVerification();
             }
-        }
-        else {
+        } else {
             $this->strictSSL = (bool)$strictSSL;
         }
 
@@ -166,8 +173,12 @@ class RequestFactory implements RequestFactoryInterface
      *
      * @return OrderRequest
      */
-    final public function createOrderRequest(float $amount, CurrencyCodes|string $currency, string $description = '', OrderTypes|string $orderType = OrderTypes::PURCHASE): OrderRequest
-    {
+    final public function createOrderRequest(
+        float $amount,
+        CurrencyCodes|string $currency,
+        string $description = '',
+        OrderTypes|string $orderType = OrderTypes::PURCHASE,
+    ): OrderRequest {
         $request = new OrderRequest(
             $this->getUrlProvider()->getGatewayUrl(),
             $this->getUrlProvider()->getOnOrderApprovedUrl(),
@@ -192,8 +203,11 @@ class RequestFactory implements RequestFactoryInterface
      *
      * @return OrderRequest
      */
-    final public function createOrderPreAuthRequest(float $amount, CurrencyCodes|string $currency, string $description = ''): OrderRequest
-    {
+    final public function createOrderPreAuthRequest(
+        float $amount,
+        CurrencyCodes|string $currency,
+        string $description = '',
+    ): OrderRequest {
         return $this->createOrderRequest($amount, $currency, $description, OrderTypes::PRE_AUTH);
     }
 
@@ -204,8 +218,11 @@ class RequestFactory implements RequestFactoryInterface
      *
      * @return OrderRequest
      */
-    final public function createOrderPurchaseRequest(float $amount, CurrencyCodes|string $currency, string $description = ''): OrderRequest
-    {
+    final public function createOrderPurchaseRequest(
+        float $amount,
+        CurrencyCodes|string $currency,
+        string $description = '',
+    ): OrderRequest {
         return $this->createOrderRequest($amount, $currency, $description, OrderTypes::PURCHASE);
     }
 

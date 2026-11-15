@@ -1,12 +1,12 @@
 <?php
 
-$autoloadFile = __DIR__.'/vendor/autoload.php';
-require_once is_file($autoloadFile) ? $autoloadFile : __DIR__.'/../vendor/autoload.php';
+$autoloadFile = __DIR__ . '/vendor/autoload.php';
+require_once is_file($autoloadFile) ? $autoloadFile : __DIR__ . '/../vendor/autoload.php';
 
-use \OpenPaymentSolutions\TranzWarePaymentGateway\RequestFactory;
-use \OpenPaymentSolutions\TranzWarePaymentGateway\CurrencyCodes;
-use \OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
-use \OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderType;
+use OpenPaymentSolutions\TranzWarePaymentGateway\RequestFactory;
+use OpenPaymentSolutions\TranzWarePaymentGateway\CurrencyCodes;
+use OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderType;
 
 $requestFactory = new RequestFactory(
     'https://tranz-ware-payment-gateway/url',
@@ -16,16 +16,21 @@ $requestFactory = new RequestFactory(
     'https://your-site-address-here/samples/order_canceled.php',
     'EN'
 );
-$keyFile = __DIR__.'/certificates/your-private-key.pem';
-$keyPass = file_get_contents(__DIR__.'/certificates/your-private-key-pass.txt');
-$certFile = __DIR__.'/certificates/cert-signed-by-payment-gateway-part.crt';
+$keyFile = __DIR__ . '/certificates/your-private-key.pem';
+$keyPass = file_get_contents(__DIR__ . '/certificates/your-private-key-pass.txt');
+$certFile = __DIR__ . '/certificates/cert-signed-by-payment-gateway-part.crt';
 try {
     $requestFactory
         ->setCertificate($certFile, $keyFile, $keyPass)
         ->enableSSLVerification()
-        ->setDebugFile(__DIR__.'/debug.log');
+        ->setDebugFile(__DIR__ . '/debug.log');
 
-    $orderRequest = $requestFactory->createOrderRequest(1, CurrencyCodes::USD, 'TEST PAYMENT $0.01', OrderTypes::PURCHASE);
+    $orderRequest = $requestFactory->createOrderRequest(
+        1,
+        CurrencyCodes::USD,
+        'TEST PAYMENT $0.01',
+        OrderTypes::PURCHASE
+    );
     /**
      * or shorthands:
      * $orderRequest = $requestFactory->createOrderRequest(1, CurrencyCodes::USD, 'TEST PAYMENT $0.01');
@@ -35,7 +40,7 @@ try {
 
     if ($orderRequestResult->getHttpStatus() === 200 && $orderRequestResult->success()) {
         $orderData = $orderRequestResult->getData();
-        echo '<a href="'.htmlspecialchars($orderData['PaymentUrl'], ENT_QUOTES, 'UTF-8').'">LINK TO PAYMENT</a>';
+        echo '<a href="' . htmlspecialchars($orderData['PaymentUrl'], ENT_QUOTES, 'UTF-8') . '">LINK TO PAYMENT</a>';
         exit(0);
     }
 

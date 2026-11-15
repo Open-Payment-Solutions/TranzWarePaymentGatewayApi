@@ -36,7 +36,11 @@ final class UrlsTest extends TestCase
     public function testCurrencyCodesMatchGatewayValues(): void
     {
         $this->assertSame(['840', '978', '944', '643', '938'], [
-            CurrencyCodes::USD->value, CurrencyCodes::EUR->value, CurrencyCodes::AZN->value, CurrencyCodes::RUB->value, CurrencyCodes::SDG->value,
+            CurrencyCodes::USD->value,
+            CurrencyCodes::EUR->value,
+            CurrencyCodes::AZN->value,
+            CurrencyCodes::RUB->value,
+            CurrencyCodes::SDG->value,
         ]);
     }
 }

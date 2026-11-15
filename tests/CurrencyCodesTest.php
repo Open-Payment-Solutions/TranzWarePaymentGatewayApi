@@ -10,7 +10,14 @@ final class CurrencyCodesTest extends TestCase
     /** @dataProvider currencies */
     public function testCurrencyCanBeParsedByNameOrCode(CurrencyCodes $currency): void
     {
-        foreach ([$currency->value, $currency->name, strtolower($currency->name), ' ' . $currency->name . ' '] as $input) {
+        foreach (
+            [
+            $currency->value,
+            $currency->name,
+            strtolower($currency->name),
+            ' ' . $currency->name . ' ',
+            ] as $input
+        ) {
             $this->assertSame($currency->value, CurrencyCodes::sanitizeValue($input));
             $this->assertTrue(CurrencyCodes::isValid($input));
             $this->assertSame($currency, CurrencyCodes::fromString($input));

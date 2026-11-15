@@ -78,9 +78,11 @@ class HTTPClient implements HTTPClientInterface
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt(
-            $ch, CURLOPT_HTTPHEADER, [
+            $ch,
+            CURLOPT_HTTPHEADER,
+            [
                 'Content-Type: application/xml',
-                'Content-Length: '.strlen($this->body ?? '')
+                'Content-Length: ' . strlen($this->body ?? '')
             ]
         );
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
@@ -94,10 +96,10 @@ class HTTPClient implements HTTPClientInterface
             }
 
             if (isset($this->ssl['ca'])) {
-              $sslCAPath = $this->ssl['ca']['path'];
-              $sslCAFile = $this->ssl['ca']['file'];
-              curl_setopt($ch, CURLOPT_CAPATH, $sslCAPath);
-              curl_setopt($ch, CURLOPT_CAINFO, $sslCAFile);
+                $sslCAPath = $this->ssl['ca']['path'];
+                $sslCAFile = $this->ssl['ca']['file'];
+                curl_setopt($ch, CURLOPT_CAPATH, $sslCAPath);
+                curl_setopt($ch, CURLOPT_CAINFO, $sslCAFile);
             }
 
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (bool)$this->strictSSL ? 2 : 0);
