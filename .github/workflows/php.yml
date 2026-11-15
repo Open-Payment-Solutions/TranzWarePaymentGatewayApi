@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, v1.2.3 ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
 
@@ -16,9 +19,14 @@ jobs:
         php: ['8.2', '8.3', '8.4', '8.5']
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
 
-    - uses: shivammathur/setup-php@v2
+    - name: Check workflow security
+      run: ruby .github/scripts/check-workflow-security.rb
+
+    - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
       with:
         php-version: ${{ matrix.php }}
         extensions: curl, json, mbstring, simplexml
@@ -27,17 +35,8 @@ jobs:
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v4
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ matrix.php }}-${{ hashFiles('**/composer.json', '**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-${{ matrix.php }}-
-
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      run: composer install --prefer-dist --no-progress --no-plugins --no-scripts
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md

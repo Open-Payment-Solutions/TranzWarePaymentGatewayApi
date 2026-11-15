@@ -9,28 +9,76 @@ permissions:
   contents: read
 
 jobs:
+  authorize:
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    outputs:
+      trusted-sha: ${{ steps.source.outputs.trusted-sha }}
+      release-sha: ${{ steps.source.outputs.release-sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify release source
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git merge-base --is-ancestor "$GITHUB_SHA" HEAD
+          [[ "$(git show "$GITHUB_SHA:VERSION")" == "$GITHUB_REF_NAME" ]]
+          printf 'trusted-sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          printf 'release-sha=%s\n' "$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+
   validate:
+    needs: authorize
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.authorize.outputs.release-sha }}
+          persist-credentials: false
+      - run: ruby .github/scripts/check-workflow-security.rb
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: '8.2'
           extensions: curl, json, mbstring, simplexml
           coverage: none
       - run: composer validate --strict
-      - run: composer install --prefer-dist --no-progress
+      - run: composer install --prefer-dist --no-progress --no-plugins --no-scripts
       - run: composer lint
       - run: composer test
 
   publish:
-    needs: validate
+    needs: [authorize, validate]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out trusted release tooling
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.authorize.outputs.trusted-sha }}
+          path: release-tools
+          persist-credentials: false
+          sparse-checkout: .github/scripts/publish-release.py
+          sparse-checkout-cone-mode: false
+      - name: Check out release metadata
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.authorize.outputs.release-sha }}
+          path: release-data
+          persist-credentials: false
+          sparse-checkout: |
+            /VERSION
+            /CHANGELOG.md
+          sparse-checkout-cone-mode: false
       - name: Publish release notes
+        working-directory: release-data
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python3 .github/scripts/publish-release.py
+          TRUSTED_MAIN_SHA: ${{ needs.authorize.outputs.trusted-sha }}
+        run: python3 -I "$GITHUB_WORKSPACE/release-tools/.github/scripts/publish-release.py"

@@ -1,5 +1,5 @@
 {
     "require": {
-        "open-payment-solutions/tranzware-payment-gateway": "~1.5.2"
+        "open-payment-solutions/tranzware-payment-gateway": "~1.5.3"
     }
 }

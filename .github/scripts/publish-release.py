@@ -80,10 +80,30 @@ def warn_legacy_release():
     print('Updated 1.2.3 release notes; the original Git tag is unchanged.')
 
 
+def verify_release_source(version):
+    if os.environ.get('GITHUB_EVENT_NAME') != 'push' or os.environ.get('GITHUB_REF_TYPE') != 'tag':
+        raise RuntimeError('Releases require a tag push')
+    release_sha = os.environ['GITHUB_SHA']
+    trusted_sha = os.environ['TRUSTED_MAIN_SHA']
+    if not all(re.fullmatch(r'[0-9a-f]{40}', sha) for sha in (release_sha, trusted_sha)):
+        raise RuntimeError('Release and trusted source must be commit SHAs')
+    target = request('GET', f'/git/ref/tags/{version}')['object']
+    for _ in range(10):
+        if target['type'] != 'tag':
+            break
+        target = request('GET', f'/git/tags/{target["sha"]}')['object']
+    if target['type'] != 'commit' or target['sha'] != release_sha:
+        raise RuntimeError('Release tag no longer points to the validated commit')
+    comparison = request('GET', f'/compare/{release_sha}...{trusted_sha}')
+    if comparison['status'] not in ('ahead', 'identical'):
+        raise RuntimeError('Release commit must belong to the verified main history')
+
+
 def main():
     version = os.environ['GITHUB_REF_NAME']
     if not re.fullmatch(r'\d+\.\d+\.\d+', version) or Path('VERSION').read_text().strip() != version:
         raise RuntimeError('Release tag must match the version in VERSION')
+    verify_release_source(version)
     body = release_notes(version)
     release = request('GET', f'/releases/tags/{version}', allow_missing=True)
     if release is None:

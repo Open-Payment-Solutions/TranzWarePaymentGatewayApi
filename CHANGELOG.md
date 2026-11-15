@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.5.3
+
+- Pin setup-php 2.40.0 and checkout 7.0.1 to full commit SHAs. The setup-php
+  version includes the Composer OAuth token disclosure fix.
+- Restrict test jobs to read-only repository tokens, disable persisted checkout
+  credentials and Composer install hooks, and remove cached executable dependencies.
+- Require release commits to belong to main before validation. Publish with
+  tooling from a verified main commit and recheck tag identity before publishing.
+- Add automated workflow security checks and weekly Dependabot action updates.
+- Update installation instructions and sample dependencies to 1.5.3.
+
 ## 1.5.2
 
 - Commit the root `composer.lock` file and stop ignoring it, so development and CI
