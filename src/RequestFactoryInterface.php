@@ -2,7 +2,7 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
-use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\RequestInterface;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\RequestInterface;
 
 /**
  * Interface RequestFactoryInterface
@@ -22,9 +22,9 @@ interface RequestFactoryInterface
      * @param string $LANG (optional)
      */
     public function __construct(
-        $GATEWAY_URL, $MERCHANT_ID,
-        $ON_ORDER_APPROVED_URL, $ON_ORDER_DECLINED_URL, $ON_ORDER_CANCELED_URL,
-        $LANG = 'EN'
+        string $GATEWAY_URL, string $MERCHANT_ID,
+        string $ON_ORDER_APPROVED_URL, string $ON_ORDER_DECLINED_URL, string $ON_ORDER_CANCELED_URL,
+        string $LANG = 'EN'
     );
 
     /**
@@ -33,23 +33,25 @@ interface RequestFactoryInterface
      * @param  string $path_to_file
      * @return void
      */
-    public function setDebugFile($path_to_file);
+    public function setDebugFile(string $path_to_file): self;
 
     /**
      * @param float                                              $amount
-     * @param string                                             $currency
+     * @param CurrencyCodes|string                                             $currency
      * @param string                                             $description
-     * @param string{OrderTypes::PURCHASE, OrderTypes::PRE_AUTH} $orderType
+     * @param OrderTypes|string $orderType
      *
      * @return RequestInterface
      */
-    public function createOrderRequest($amount, $currency, $description = '', $orderType = OrderTypes::PURCHASE);
+    public function createOrderRequest(float $amount, CurrencyCodes|string $currency, string $description = '', OrderTypes|string $orderType = OrderTypes::PURCHASE): RequestInterface;
 
     /**
-     * @param string $orderId
-     * @param string $sessionId
+     * @param string|null $orderId
+     * @param string|null $sessionId
      *
      * @return RequestInterface
+     * @throws Exceptions\InvalidOrderId
+     * @throws Exceptions\InvalidSessionId
      */
-    public function createOrderStatusRequest($orderId, $sessionId);
+    public function createOrderStatusRequest(?string $orderId, ?string $sessionId): RequestInterface;
 }

@@ -9,5 +9,5 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Handlers;
  */
 interface HandlerInterface
 {
-    public function handle();
+    public function handle(): array;
 }

@@ -14,46 +14,46 @@ interface UrlProviderInterface
      *
      * @return $this
      */
-    public function setGatewayUrl($url);
+    public function setGatewayUrl(string $url): self;
 
     /**
      * @return string
      */
-    public function getGatewayUrl();
+    public function getGatewayUrl(): string;
 
     /**
      * @param string $url
      *
      * @return $this
      */
-    public function setOnOrderApprovedUrl($url);
+    public function setOnOrderApprovedUrl(string $url): self;
 
     /**
      * @return string
      */
-    public function getOnOrderApprovedUrl();
+    public function getOnOrderApprovedUrl(): string;
 
     /**
      * @param string $url
      *
      * @return $this
      */
-    public function setOnOrderDeclinedUrl($url);
+    public function setOnOrderDeclinedUrl(string $url): self;
 
     /**
      * @return string
      */
-    public function getOnOrderDeclinedUrl();
+    public function getOnOrderDeclinedUrl(): string;
 
     /**
      * @param string $url
      *
      * @return this
      */
-    public function setOnOrderCanceledUrl($url);
+    public function setOnOrderCanceledUrl(string $url): self;
 
     /**
      * @return string
      */
-    public function getOnOrderCanceledUrl();
+    public function getOnOrderCanceledUrl(): string;
 }

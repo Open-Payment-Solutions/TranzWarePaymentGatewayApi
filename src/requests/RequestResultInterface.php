@@ -21,33 +21,33 @@ interface RequestResultInterface
      *
      * @return integer
      */
-    public function getHttpStatus();
+    public function getHttpStatus(): int;
 
     /**
      * Returns raw response body
      *
      * @return mixed
      */
-    public function getResponseBody();
+    public function getResponseBody(): string|false;
 
     /**
      * Returns true if request is successful
      *
      * @return bool
      */
-    public function success();
+    public function success(): bool;
 
     /**
      * Returns request processing status
      *
      * @return mixed
      */
-    public function getStatus();
+    public function getStatus(): ?string;
 
     /**
      * Returns usable structure from processing of response body
      *
      * @return mixed
      */
-    public function getData();
+    public function getData(): ?array;
 }

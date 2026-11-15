@@ -2,9 +2,10 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
-use \Exception;
-use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderRequest;
-use \OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequest;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderId;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidSessionId;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderRequest;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequest;
 
 /**
  * Factory class for creation of request objects
@@ -43,9 +44,9 @@ class RequestFactory implements RequestFactoryInterface
      * @param string $LANG (optional)
      */
     public function __construct(
-        $GATEWAY_URL, $MERCHANT_ID,
-        $ON_ORDER_APPROVED_URL, $ON_ORDER_DECLINED_URL, $ON_ORDER_CANCELED_URL,
-        $LANG = 'EN'
+        string $GATEWAY_URL, string $MERCHANT_ID,
+        string $ON_ORDER_APPROVED_URL, string $ON_ORDER_DECLINED_URL, string $ON_ORDER_CANCELED_URL,
+        string $LANG = 'EN'
     ) {
         $this->MERCHANT_ID = $MERCHANT_ID;
         $this->LANG = $LANG;
@@ -58,7 +59,10 @@ class RequestFactory implements RequestFactoryInterface
         $this->setUrlProvider($urlProvider);
     }
 
-    private $strictSSL = null, $sslCertificate, $sslKey, $sslKeyPass;
+    private ?bool $strictSSL = null;
+    private ?string $sslCertificate = null;
+    private ?string $sslKey = null;
+    private ?string $sslKeyPass = null;
 
     /**
      * Setting certificate, key file, key pass (default: ''), strict mode (default: enabled)
@@ -70,7 +74,7 @@ class RequestFactory implements RequestFactoryInterface
      *
      * @return RequestFactory
      */
-    final public function setCertificate($certFile, $keyFile, $keyPass = '', $strictSSL = null)
+    final public function setCertificate(string $certFile, string $keyFile, ?string $keyPass = '', ?bool $strictSSL = null): self
     {
         $this->sslKey = $keyFile;
         $this->sslKeyPass = $keyPass;
@@ -92,7 +96,7 @@ class RequestFactory implements RequestFactoryInterface
      *
      * @return RequestFactory
      */
-    final public function disableSSLVerification()
+    final public function disableSSLVerification(): self
     {
         $this->strictSSL = false;
         return $this;
@@ -103,14 +107,14 @@ class RequestFactory implements RequestFactoryInterface
      *
      * @return RequestFactory
      */
-    final public function enableSSLVerification()
+    final public function enableSSLVerification(): self
     {
         $this->strictSSL = true;
         return $this;
     }
 
-    protected $MERCHANT_ID;
-    protected $LANG;
+    protected string $MERCHANT_ID;
+    protected string $LANG;
 
     /**
      * @var UrlProviderInterface
@@ -118,14 +122,14 @@ class RequestFactory implements RequestFactoryInterface
      * Instance of UrlProviderInterface
      * that returns set of urls required by request instances
      */
-    protected $urlProvider;
+    protected UrlProviderInterface $urlProvider;
 
     /**
      * @param UrlProviderInterface $urlProvider
      *
      * @return RequestFactory
      */
-    private function setUrlProvider(UrlProviderInterface $urlProvider)
+    private function setUrlProvider(UrlProviderInterface $urlProvider): self
     {
         $this->urlProvider = $urlProvider;
         return $this;
@@ -134,19 +138,20 @@ class RequestFactory implements RequestFactoryInterface
     /**
      * @return UrlProviderInterface
      */
-    private function getUrlProvider()
+    private function getUrlProvider(): UrlProviderInterface
     {
         return $this->urlProvider;
     }
 
-    protected $debug = false, $debugFile;
+    protected bool $debug = false;
+    protected ?string $debugFile = null;
 
     /**
      * @param string $pathToFile
      *
      * @return RequestFactory
      */
-    final public function setDebugFile($pathToFile)
+    final public function setDebugFile(string $pathToFile): self
     {
         $this->debug = true;
         $this->debugFile = $pathToFile;
@@ -155,13 +160,13 @@ class RequestFactory implements RequestFactoryInterface
 
     /**
      * @param float                                              $amount
-     * @param string                                             $currency
+     * @param CurrencyCodes|string                                             $currency
      * @param string                                             $description (optional)
-     * @param string{OrderTypes::PURCHASE, OrderTypes::PRE_AUTH} $orderType   (optional)
+     * @param OrderTypes|string $orderType   (optional)
      *
      * @return OrderRequest
      */
-    final public function createOrderRequest($amount, $currency, $description = '', $orderType = OrderTypes::PURCHASE)
+    final public function createOrderRequest(float $amount, CurrencyCodes|string $currency, string $description = '', OrderTypes|string $orderType = OrderTypes::PURCHASE): OrderRequest
     {
         $request = new OrderRequest(
             $this->getUrlProvider()->getGatewayUrl(),
@@ -182,45 +187,38 @@ class RequestFactory implements RequestFactoryInterface
 
     /**
      * @param float  $amount
-     * @param string $currency
+     * @param CurrencyCodes|string $currency
      * @param string $description (optional)
      *
      * @return OrderRequest
      */
-    final public function createOrderPreAuthRequest($amount, $currency, $description = '')
+    final public function createOrderPreAuthRequest(float $amount, CurrencyCodes|string $currency, string $description = ''): OrderRequest
     {
         return $this->createOrderRequest($amount, $currency, $description, OrderTypes::PRE_AUTH);
     }
 
     /**
      * @param float  $amount
-     * @param string $currency
+     * @param CurrencyCodes|string $currency
      * @param string $description (optional)
      *
      * @return OrderRequest
      */
-    final public function createOrderPurchaseRequest($amount, $currency, $description = '')
+    final public function createOrderPurchaseRequest(float $amount, CurrencyCodes|string $currency, string $description = ''): OrderRequest
     {
         return $this->createOrderRequest($amount, $currency, $description, OrderTypes::PURCHASE);
     }
 
   /**
-   * @param string $orderId
-   * @param string $sessionId
+   * @param string|null $orderId
+   * @param string|null $sessionId
    *
    * @return OrderStatusRequest
-   * @throws Exception
+   * @throws InvalidOrderId
+   * @throws InvalidSessionId
    */
-    final public function createOrderStatusRequest($orderId, $sessionId)
+    final public function createOrderStatusRequest(?string $orderId, ?string $sessionId): OrderStatusRequest
     {
-        if (!$orderId) {
-          throw new Exception('Empty OrderID');
-        }
-
-        if (!$sessionId) {
-          throw new Exception('Empty SessionID');
-        }
-
         $request = new OrderStatusRequest(
             $this->getUrlProvider()->getGatewayUrl(),
             $this->MERCHANT_ID,

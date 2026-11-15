@@ -1,4 +1,4 @@
-# Integration guide — 1.3.1
+# Integration guide — 1.4.0
 
 This guide uses the shortened API names introduced in 1.3.0 on `main`.
 For the original names, use [edition 1.2.3](../README.md#using-the-previous-edition-123).
@@ -7,7 +7,7 @@ When upgrading, follow the [migration instructions](../CHANGELOG.md#130).
 ## Install
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.3.1"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.4.0"
 ```
 
 Enable PHP's cURL, JSON, and SimpleXML extensions. Obtain your merchant ID,
@@ -69,18 +69,28 @@ For a purchase, save this as `create.php` beside `gateway.php`:
 ```php
 <?php
 use OpenPaymentSolutions\TranzWarePaymentGateway\CurrencyCodes;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderType;
 
 $factory = require __DIR__ . '/gateway.php';
 
 // Take amount and currency from your own server-side checkout record.
-$result = $factory->createOrderPurchaseRequest(
-    100,
-    CurrencyCodes::USD,
-    'Checkout 123'
-)->execute();
+try {
+    $result = $factory->createOrderPurchaseRequest(
+        100,
+        CurrencyCodes::USD,
+        'Checkout 123'
+    )->execute();
+} catch (InvalidOrderType $e) {
+    http_response_code(400);
+    exit($e->getMessage());
+} catch (Exception $e) {
+    http_response_code(502);
+    exit($e->getMessage());
+}
 
 if ($result->getHttpStatus() !== 200 || !$result->success()) {
-    throw new RuntimeException('Gateway rejected order creation.');
+    http_response_code(502);
+    exit('Gateway rejected order creation.');
 }
 
 $order = $result->getData();
@@ -91,10 +101,10 @@ exit;
 ```
 
 The amount is sent unchanged: confirm the required units with your bank.
-Currency codes are numeric strings; `CurrencyCodes` includes USD, EUR, AZN, RUB,
-and SDG. Supply trusted values: request templates substitute strings directly
-into XML, so text containing XML metacharacters must be escaped by your
-application (for example with `htmlspecialchars($text, ENT_XML1 | ENT_QUOTES, 'UTF-8')`).
+Currency codes can be numeric strings or `CurrencyCodes` enum cases (USD, EUR,
+AZN, RUB, and SDG). Use `CurrencyCodes::fromString('usd')` to parse a name or
+numeric code, and `CurrencyCodes::USD->value` for the gateway string. Request
+values are XML-escaped automatically; pass original text without pre-escaping it.
 
 On successful creation, `getData()` contains `URL`, `OrderId`, `SessionId`, and
 `PaymentUrl`. `success()` here means the gateway accepted the **creation** request
@@ -120,15 +130,19 @@ $result = $factory->createOrderRequest(
 )->execute();
 ```
 
-The default is `OrderTypes::PURCHASE`. Preauthorization reserves funds; this
+The default is `OrderTypes::PURCHASE`. `OrderTypes::fromString('pre_auth')`
+returns `OrderTypes::PRE_AUTH`; unknown values throw
+`OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderType`.
+Preauthorization reserves funds; this
 package does not provide capture, refund, or cancellation request methods.
 
 ## Handle the return and check status
 
 `HandlerFactory` creates a parser for the gateway's `xmlmsg` request parameter.
 It accepts raw XML or base64-encoded XML and returns `DateTime`, `OrderId`,
-`Amount`, `Currency`, `OrderStatus`, and the original `xmlmsg`. Invalid XML returns
-`null`. The handler reads `$_REQUEST`; it parses data without authenticating the
+`Amount`, `Currency`, `OrderStatus`, and the original `xmlmsg`. Missing or empty
+messages throw `Exceptions\EmptyXMLMessage`; invalid XML, incomplete callbacks,
+and non-string messages throw `Exceptions\InvalidXMLMessage`. The handler reads `$_REQUEST`; it parses data without authenticating the
 sender or verifying a payment.
 
 For example, use this return handler for approved, declined, and canceled returns:
@@ -136,18 +150,19 @@ For example, use this return handler for approved, declined, and canceled return
 ```php
 <?php
 use OpenPaymentSolutions\TranzWarePaymentGateway\HandlerFactory;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\EmptyXMLMessage;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidXMLMessage;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderId;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidSessionId;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\OrderStatusRetrieveException;
 
 $factory = require __DIR__ . '/gateway.php';
 
-if (!isset($_REQUEST['xmlmsg']) || !is_string($_REQUEST['xmlmsg'])) {
+try {
+    $callback = (new HandlerFactory())->createOrderCallbackHandler()->handle();
+} catch (EmptyXMLMessage | InvalidXMLMessage $e) {
     http_response_code(400);
-    exit('Missing callback data.');
-}
-
-$callback = (new HandlerFactory())->createOrderCallbackHandler()->handle();
-if ($callback === null || !is_string($callback['OrderId'])) {
-    http_response_code(400);
-    exit('Invalid callback data.');
+    exit($e->getMessage());
 }
 
 // Application-specific: load the checkout saved during order creation.
@@ -163,9 +178,12 @@ try {
         $savedOrder['OrderId'],
         $savedOrder['SessionId']
     )->execute();
-} catch (Exception $e) {
+} catch (InvalidOrderId | InvalidSessionId $e) {
+    http_response_code(400);
+    exit($e->getMessage());
+} catch (OrderStatusRetrieveException $e) {
     http_response_code(502);
-    exit('Unable to verify payment.');
+    exit($e->getMessage());
 }
 
 $data = $result->getData();
@@ -190,7 +208,12 @@ does not supply a verified amount or currency, so reconcile those through your
 bank's supported process when needed.
 
 You can run `createOrderStatusRequest($orderId, $sessionId)->execute()` at any time
-using the stored pair, independently of a callback. Empty IDs throw an exception.
+using the stored pair, independently of a callback. Null, empty, or whitespace-only
+IDs throw `Exceptions\InvalidOrderId` or `Exceptions\InvalidSessionId` when the
+request is created. `execute()` throws `Exceptions\OrderStatusRetrieveException`
+for transport failures, unsuccessful HTTP or gateway status, malformed XML, or a
+missing order status. The original exception is available through `getPrevious()`.
+A retrieved `DECLINED` or `CANCELED` status remains a valid result.
 `getStatus()` is the gateway request-processing code, while
 `getData()['OrderStatus']` is the order outcome. For status results, `success()`
 checks `APPROVED`; inspect HTTP status and gateway status as shown above as well.
@@ -206,15 +229,14 @@ Other outcomes must not be treated as confirmed payment.
 Both result classes implement `Requests\RequestResultInterface` and expose
 `getHttpStatus()`, `getStatus()`, `getData()`, and `success()`.
 `OrderStatusRequestResult` also exposes `getDetails()` and may throw for missing
-order information. Empty responses have empty data and a null gateway status;
+order information. Directly constructed results for empty responses have empty
+data and a null gateway status; status request `execute()` throws instead. Always
 check HTTP status and data before using them. A network failure may have HTTP
-status `0`. Malformed or unexpected gateway XML can produce PHP warnings or
-exceptions: handle failures at your application's boundary.
-
-Existing limitations carried over from 1.2.3: `getResponseBody()` currently
-returns `null` in both request result classes, and status responses using
-`OrderID` may yield a null `OrderId` because of the parser's casing. Keep using
-your persisted order ID. These behaviors are unchanged by the naming migration.
+status `0`. Malformed or unexpected gateway XML throws `UnexpectedValueException`
+when parsing a result directly, wrapped in `OrderStatusRetrieveException` by
+status request `execute()`. Handle failures at your application's boundary. `getResponseBody()` returns the
+raw response string, or `false` when transport fails. Status responses map the
+gateway's `OrderID` to the `OrderId` data key.
 
 For temporary diagnostics, set a writable file before creating a request:
 

@@ -2,7 +2,8 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
-use \OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
+use OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
+use OpenPaymentSolutions\TranzWarePaymentGateway\CurrencyCodes;
 
 /**
  * Class OrderRequest
@@ -13,8 +14,8 @@ class OrderRequest implements RequestInterface
 {
     use RequestSettings;
 
-    private $requestAttributes = [];
-    private $debugToFile = null;
+    private array $requestAttributes = [];
+    private ?string $debugToFile = null;
 
     /**
      * OrderRequest constructor.
@@ -23,19 +24,21 @@ class OrderRequest implements RequestInterface
      * @param string                                             $approvalUrl
      * @param string                                             $declineUrl
      * @param string                                             $cancelUrl
-     * @param string{OrderTypes::PURCHASE, OrderTypes::PRE_AUTH} $orderType
+     * @param OrderTypes|string $orderType
      * @param string                                             $merchantId
      * @param float                                              $amount
-     * @param string                                             $currency
+     * @param CurrencyCodes|string                                             $currency
      * @param string                                             $description
      * @param string                                             $lang
      * @param string                                             $debugToFile
      */
     public function __construct(
-        $requestUrl, $approvalUrl, $declineUrl, $cancelUrl,
-        $orderType, $merchantId, $amount, $currency,
-        $description = '', $lang = 'EN', $debugToFile = null
+        string $requestUrl, string $approvalUrl, string $declineUrl, string $cancelUrl,
+        OrderTypes|string $orderType, string $merchantId, float $amount, CurrencyCodes|string $currency,
+        string $description = '', string $lang = 'EN', ?string $debugToFile = null
     ) {
+        $orderType = OrderTypes::fromString($orderType)->value;
+        $currency = $currency instanceof CurrencyCodes ? $currency->value : $currency;
         $this->requestAttributes =
             compact(
                 'requestUrl', 'approvalUrl', 'declineUrl', 'cancelUrl',
@@ -45,7 +48,7 @@ class OrderRequest implements RequestInterface
         $this->debugToFile = $debugToFile;
     }
 
-    public function execute()
+    public function execute(): RequestResultInterface
     {
         $ssl = [
             'key' => $this->sslKey,
@@ -64,13 +67,13 @@ class OrderRequest implements RequestInterface
         return new OrderRequestResult($httpClient->execute());
     }
 
-    private function getRequestBody()
+    private function getRequestBody(): string
     {
-        $orderType = OrderTypes::fromString($this->requestAttributes['orderType']);
+        $orderType = OrderTypes::fromString($this->requestAttributes['orderType'])->value;
         $templateFile = __DIR__ . '/templates/'.$orderType.'OrderRequestBodyTemplate.xml';
         $body = file_get_contents($templateFile);
-        foreach ($this->requestAttributes AS $key => $value) {
-            $body = str_replace('{{' . $key . '}}', $value, $body);
+        foreach ($this->requestAttributes as $key => $value) {
+            $body = str_replace('{{' . $key . '}}', htmlspecialchars((string)$value, ENT_XML1 | ENT_QUOTES, 'UTF-8'), $body);
         }
         return $body;
     }

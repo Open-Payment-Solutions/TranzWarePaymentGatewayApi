@@ -3,16 +3,16 @@
 PHP library for creating orders, checking order status, and parsing callbacks from
 the Compass Plus TranzWare Payment Gateway (also known as TWEC PG).
 
-The new edition is **1.3.1** on `main`. The previous edition is preserved on the
+The new edition is **1.4.0** on `main`. The previous edition is preserved on the
 `v1.2.3` branch (formerly `master`); its latest release tag is `1.2.3`.
 
 ## Installation
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.3.1"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.4.0"
 ```
 
-PHP with cURL, JSON, and SimpleXML is required. Your bank must provide the gateway
+PHP 8.1 or newer with cURL, JSON, and SimpleXML is required. Your bank must provide the gateway
 URL, merchant ID, and client certificate/private key.
 
 ## Integration
@@ -50,6 +50,44 @@ Method names, arguments, and result array keys are unchanged.
 `CurrencyCodes` and `OrderTypes` keep their names.
 
 See the [complete rename table and migration steps](CHANGELOG.md#130).
+
+## PHP 8.1 API updates
+
+`OrderTypes` and `CurrencyCodes` are now string-backed enums. Request methods
+accept enum cases or strings. Use `->value` when you need the gateway string.
+Both enums provide `sanitizeValue()`, `isValid()`, and `fromString()`;
+`fromString()` returns an enum case.
+
+```php
+OrderTypes::fromString('pre_auth'); // OrderTypes::PRE_AUTH
+CurrencyCodes::fromString('usd');  // CurrencyCodes::USD
+CurrencyCodes::USD->value;         // '840'
+```
+
+Unknown order types throw `OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderType`. Omitting the order type when
+creating a request still selects `Purchase`. Unknown values passed to
+`CurrencyCodes::fromString()` throw `ValueError`. Numeric currency strings
+outside the enum remain accepted by request methods.
+
+Parameters, properties, interfaces, and return values now have native types;
+custom implementations and subclasses must use compatible signatures.
+Request values are XML-escaped by the library. Pass original text without
+pre-escaping it. Malformed gateway responses throw `UnexpectedValueException`
+when parsing results directly. Status request `execute()` wraps retrieval failures
+in `Exceptions\OrderStatusRetrieveException`; missing identifiers throw
+`Exceptions\InvalidOrderId` or `Exceptions\InvalidSessionId` during request creation.
+
+## Tests
+
+```sh
+composer install
+composer test
+phpdbg -qrr vendor/bin/phpunit --coverage-text
+```
+
+Coverage requires phpdbg, Xdebug, or PCOV. With Xdebug or PCOV enabled,
+`composer test:coverage` also prints the report. Tests simulate transport calls
+and do not contact a payment gateway.
 
 ## Using the previous edition (1.2.3)
 

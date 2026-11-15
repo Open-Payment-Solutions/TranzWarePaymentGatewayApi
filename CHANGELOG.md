@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.4.0
+
+### Breaking changes
+
+- Require PHP 8.1 or newer and add native parameter, property, and return types.
+  Custom implementations and subclasses must use compatible signatures.
+- Convert `OrderTypes` and `CurrencyCodes` to string-backed enums with
+  `sanitizeValue()`, `isValid()`, and `fromString()` helpers. Request methods
+  accept enum cases or strings; use `->value` for the gateway string.
+  `OrderTypes::fromString()` now returns an enum case and throws
+  `Exceptions\InvalidOrderType` for unknown values instead of selecting Purchase.
+- Callback handlers now throw `Exceptions\EmptyXMLMessage` for missing or empty
+  messages and `Exceptions\InvalidXMLMessage` for invalid messages, instead of
+  returning null.
+- Status request creation rejects null, empty, or whitespace-only identifiers
+  with `Exceptions\InvalidOrderId` or `Exceptions\InvalidSessionId`.
+  `OrderStatusRequest::execute()` throws `Exceptions\OrderStatusRetrieveException`
+  for retrieval failures and preserves the original cause. Valid declined or
+  canceled outcomes remain ordinary results.
+- XML-escape request values automatically. Applications must pass original text
+  without pre-escaping it. Malformed gateway responses now throw exceptions.
+
+### Fixes and tests
+
+- Return the raw response from `getResponseBody()` and map gateway `OrderID` to
+  the status result's `OrderId` key.
+- Handle empty transport bodies and debug file failures without PHP warnings,
+  and close debug file descriptors.
+- Add unit and sample-script tests covering exceptions, SSL options, request
+  XML, callbacks, results, and HTTP error responses without gateway calls.
+- Add coverage reporting and configure CI for PHP 8.1 through 8.5.
+- Update PHPUnit to 9.6 and require PHP_CodeSniffer 3.13.6 or newer.
+- Update the integration guide and samples for enums and typed exceptions.
+
 ## 1.3.1
 
 - Fixed GitHub Actions failures caused by the retired `actions/cache@v2`, upgrading

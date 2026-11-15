@@ -57,7 +57,7 @@ final class OrderTypesTest extends TestCase
     {
         $input = 'PRE_AUTH';
         $expected = 'PreAuth';
-        $actual = OrderTypes::fromString($input);
+        $actual = OrderTypes::fromString($input)->value;
         $this->assertEquals($expected, $actual);
     }
 
@@ -65,7 +65,7 @@ final class OrderTypesTest extends TestCase
     {
         $input = 'preAuth';
         $expected = 'PreAuth';
-        $actual = OrderTypes::fromString($input);
+        $actual = OrderTypes::fromString($input)->value;
         $this->assertEquals($expected, $actual);
     }
 
@@ -73,7 +73,7 @@ final class OrderTypesTest extends TestCase
     {
         $input = 'pre_auth';
         $expected = 'PreAuth';
-        $actual = OrderTypes::fromString($input);
+        $actual = OrderTypes::fromString($input)->value;
         $this->assertEquals($expected, $actual);
     }
 
@@ -81,7 +81,7 @@ final class OrderTypesTest extends TestCase
     {
         $input = 'Purchase';
         $expected = 'Purchase';
-        $actual = OrderTypes::fromString($input);
+        $actual = OrderTypes::fromString($input)->value;
         $this->assertEquals($expected, $actual);
     }
 }

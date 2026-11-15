@@ -15,7 +15,7 @@ interface RequestInterface
      *
      * @return RequestResultInterface
      */
-    public function execute();
+    public function execute(): RequestResultInterface;
 
     /**
      * Sets ssl certificate file path required in request
@@ -27,7 +27,7 @@ interface RequestInterface
      *
      * @return void
      */
-    public function setSslCertificate($cert, $key, $keyPass = '', $strictSSL = false);
+    public function setSslCertificate(?string $cert, ?string $key, ?string $keyPass = '', ?bool $strictSSL = true): void;
 
     /**
      * Enable/Disable strict SSL mode.
@@ -39,5 +39,5 @@ interface RequestInterface
      *
      * @return void
      */
-    public function setStrictSSL($enable = true);
+    public function setStrictSSL(bool $enable = true): void;
 }

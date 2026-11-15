@@ -48,18 +48,17 @@ final class PublicApiTest extends TestCase
     }
 
     /** @dataProvider emptyIdentifiers */
-    public function testStatusRequestStillRejectsEmptyIdentifiers($orderId, $sessionId, $message)
+    public function testStatusRequestStillRejectsEmptyIdentifiers($orderId, $sessionId, $exception)
     {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage($message);
+        $this->expectException($exception);
         $this->factory()->createOrderStatusRequest($orderId, $sessionId);
     }
 
     public static function emptyIdentifiers(): array
     {
         return [
-            ['123', '', 'Empty SessionID'],
-            ['', 'session-test', 'Empty OrderID'],
+            ['123', '', \OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidSessionId::class],
+            ['', 'session-test', \OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderId::class],
         ];
     }
 

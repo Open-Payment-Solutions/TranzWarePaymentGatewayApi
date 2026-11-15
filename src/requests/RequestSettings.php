@@ -4,7 +4,10 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 trait RequestSettings
 {
-    private $strictSSL, $sslKey, $sslKeyPass, $sslCertificate;
+    private bool $strictSSL = true;
+    private ?string $sslKey = null;
+    private ?string $sslKeyPass = '';
+    private ?string $sslCertificate = null;
 
     /**
      * Sets ssl certificate file path required in request
@@ -16,12 +19,12 @@ trait RequestSettings
      *
      * @return void
      */
-    final public function setSslCertificate($cert, $key, $keyPass = '', $strictSSL = true)
+    final public function setSslCertificate(?string $cert, ?string $key, ?string $keyPass = '', ?bool $strictSSL = true): void
     {
         $this->sslKey = $key;
         $this->sslKeyPass = $keyPass;
         $this->sslCertificate = $cert;
-        $this->setStrictSSL((bool)$strictSSL);
+        $this->setStrictSSL($strictSSL ?? true);
     }
 
     /**
@@ -34,17 +37,17 @@ trait RequestSettings
      *
      * @return void
      */
-    final public function setStrictSSL($enable = true)
+    final public function setStrictSSL(bool $enable = true): void
     {
         $this->strictSSL = $enable;
     }
 
-    final public function enableSSLVerification()
+    final public function enableSSLVerification(): void
     {
         $this->setStrictSSL(true);
     }
 
-    final public function disableSSLVerification()
+    final public function disableSSLVerification(): void
     {
         $this->setStrictSSL(false);
     }

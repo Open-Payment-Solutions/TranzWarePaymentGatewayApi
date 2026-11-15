@@ -2,7 +2,7 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
-use \OpenPaymentSolutions\TranzWarePaymentGateway\Handlers\HandlerInterface;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Handlers\HandlerInterface;
 
 /**
  * Interface HandlerFactoryInterface
@@ -17,5 +17,5 @@ interface HandlerFactoryInterface
      *
      * @return HandlerInterface
      */
-    public function createOrderCallbackHandler();
+    public function createOrderCallbackHandler(): HandlerInterface;
 }

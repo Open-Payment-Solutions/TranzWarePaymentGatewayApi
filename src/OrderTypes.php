@@ -2,37 +2,42 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
-use \Jawira\CaseConverter\CaseConverterException;
-use \Jawira\CaseConverter\Convert;
+use Jawira\CaseConverter\CaseConverterException;
+use Jawira\CaseConverter\Convert;
+use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderType;
 
-class OrderTypes
+enum OrderTypes: string
 {
-    const PURCHASE = 'Purchase';
-    const PRE_AUTH = 'PreAuth';
+    case PURCHASE = 'Purchase';
+    case PRE_AUTH = 'PreAuth';
 
-    public static function sanitizeValue($value)
+    public static function sanitizeValue(string $value): string
     {
         if (!preg_match('/^[A-Za-z_]+?/', $value)) {
             return '';
         }
         try {
             return (new Convert($value))->toPascal();
-        } catch (CaseConverterException $e) {}
-        return '';
+        } catch (CaseConverterException) {
+            return '';
+        }
     }
 
-    public static function isValid($orderType)
+    public static function isValid(self|string $orderType): bool
     {
-        $allowedTypes = [
-            self::PURCHASE,
-            self::PRE_AUTH
-        ];
-        return in_array($orderType, $allowedTypes);
+        return $orderType instanceof self || self::tryFrom($orderType) !== null;
     }
 
-    public static function fromString($orderType)
+    public static function fromString(self|string $orderType): self
     {
-        $orderType = self::sanitizeValue($orderType);
-        return self::isValid($orderType) ? $orderType : self::PURCHASE;
+        if ($orderType instanceof self) {
+            return $orderType;
+        }
+
+        return match (self::sanitizeValue($orderType)) {
+            self::PRE_AUTH->value => self::PRE_AUTH,
+            self::PURCHASE->value => self::PURCHASE,
+            default => throw new InvalidOrderType($orderType),
+        };
     }
 }

@@ -2,7 +2,7 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
-use \Exception;
+use Exception;
 
 /**
  * Class OrderStatusRequestResult
@@ -11,11 +11,11 @@ use \Exception;
  */
 class OrderStatusRequestResult implements RequestResultInterface
 {
-    private $httpStatus;
-    private $responseBody;
-    private $status;
-    private $details;
-    private $data;
+    private int $httpStatus = 0;
+    private string|false $responseBody = '';
+    private ?string $status = null;
+    private string $details = '';
+    private ?array $data = [];
 
   /**
    * OrderStatusRequestResult constructor.
@@ -28,7 +28,7 @@ class OrderStatusRequestResult implements RequestResultInterface
     {
         $this->responseBody = $HTTPClientResult->getOutput();
         $info = $HTTPClientResult->getInfo();
-        $this->httpStatus = $info['http_code'];
+        $this->httpStatus = (int)($info['http_code'] ?? 0);
 
         if (!$this->responseBody) {
             $this->status = null;
@@ -36,18 +36,15 @@ class OrderStatusRequestResult implements RequestResultInterface
             return;
         }
 
-        $this->data =
-            json_decode(
-                json_encode(
-                    (array)simplexml_load_string($this->responseBody)
-                ),
-                false
-            );
+        $xml = @simplexml_load_string($this->responseBody, \SimpleXMLElement::class, LIBXML_NONET);
+        if ($xml === false || !isset($xml->Response->Status)) {
+            throw new \UnexpectedValueException('Invalid gateway response');
+        }
 
-        $response = $this->data->Response;
-        $order = $response->Order;
-        $this->status = $response->Status;
-        $this->details = isset($response->Details) ? $response->Details : '';
+        $response = $xml->Response;
+        $order = $response->Order ?? new \stdClass();
+        $this->status = (string)$response->Status;
+        $this->details = (string)($response->Details ?? '');
 
         if (!isset($order->OrderStatus) && !isset($order->OrderID)) {
           if ($this->details) {
@@ -58,37 +55,37 @@ class OrderStatusRequestResult implements RequestResultInterface
         }
 
         $this->data = [
-            'OrderId'       => isset($order->OrderId) ? $order->OrderId : null,
-            'OrderStatus'   => isset($order->OrderStatus) ? $order->OrderStatus : null
+            'OrderId'       => isset($order->OrderID) ? (string)$order->OrderID : null,
+            'OrderStatus'   => isset($order->OrderStatus) ? (string)$order->OrderStatus : null
         ];
     }
 
-    public function getHttpStatus()
+    public function getHttpStatus(): int
     {
         return $this->httpStatus;
     }
 
-    final public function getResponseBody()
+    final public function getResponseBody(): string|false
     {
-        $this->responseBody;
+        return $this->responseBody;
     }
 
-    final public function success()
+    final public function success(): bool
     {
-        return $this->data['OrderStatus'] === 'APPROVED';
+        return ($this->data['OrderStatus'] ?? null) === 'APPROVED';
     }
 
-    final public function getStatus()
+    final public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    final public function getDetails()
+    final public function getDetails(): string
     {
       return $this->details;
     }
 
-    final public function getData()
+    final public function getData(): ?array
     {
         return $this->data;
     }

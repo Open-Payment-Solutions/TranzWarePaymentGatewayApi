@@ -6,3 +6,4 @@ samples/composer.lock
 composer.lock
 manual.docx
 phpunit.phar
+.phpunit.result.cache

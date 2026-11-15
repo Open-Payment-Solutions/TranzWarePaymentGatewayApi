@@ -9,19 +9,19 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
  */
 interface HTTPClientResultInterface
 {
-    public function __construct($output, $info);
+    public function __construct(string|false $output, array $info);
 
     /**
      * Returns request info (headers, status and etc)
      *
      * @return mixed
      */
-    public function getInfo();
+    public function getInfo(): array;
 
     /**
      * Returns raw http output
      *
      * @return mixed
      */
-    public function getOutput();
+    public function getOutput(): string|false;
 }

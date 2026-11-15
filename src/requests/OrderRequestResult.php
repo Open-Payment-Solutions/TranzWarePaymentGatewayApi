@@ -9,10 +9,10 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
  */
 class OrderRequestResult implements RequestResultInterface
 {
-    private $httpStatus;
-    private $responseBody;
-    private $status;
-    private $data;
+    private int $httpStatus = 0;
+    private string|false $responseBody = '';
+    private ?string $status = null;
+    private ?array $data = [];
 
     /**
      * OrderRequestResult constructor.
@@ -23,7 +23,7 @@ class OrderRequestResult implements RequestResultInterface
     {
         $this->responseBody = $HTTPClientResult->getOutput();
         $info = $HTTPClientResult->getInfo();
-        $this->httpStatus = $info['http_code'];
+        $this->httpStatus = (int)($info['http_code'] ?? 0);
 
         if (!$this->responseBody) {
             $this->status = null;
@@ -31,24 +31,24 @@ class OrderRequestResult implements RequestResultInterface
             return;
         }
 
-        $this->data =
-            json_decode(
-                json_encode(
-                    (array)simplexml_load_string($this->responseBody)
-                ),
-                false
-            );
+        $xml = @simplexml_load_string($this->responseBody, \SimpleXMLElement::class, LIBXML_NONET);
+        if ($xml === false || !isset($xml->Response->Status)) {
+            throw new \UnexpectedValueException('Invalid gateway response');
+        }
 
-        $response = $this->data->Response;
-        $order = $response->Order;
-        $this->status = $response->Status;
+        $response = $xml->Response;
+        $order = $response->Order ?? new \stdClass();
+        $this->status = (string)$response->Status;
 
         $this->data = null;
         if ($this->success()) {
+            if (!isset($order->URL, $order->OrderID, $order->SessionID)) {
+                throw new \UnexpectedValueException('Incomplete gateway order response');
+            }
             $this->data = [
-                'URL' => $order->URL,
-                'OrderId' => $order->OrderID,
-                'SessionId' => $order->SessionID,
+                'URL' => (string)$order->URL,
+                'OrderId' => (string)$order->OrderID,
+                'SessionId' => (string)$order->SessionID,
                 'PaymentUrl' => $order->URL . '?' .
                                 'ORDERID=' . $order->OrderID . '&' .
                                 'SESSIONID=' . $order->SessionID
@@ -56,27 +56,27 @@ class OrderRequestResult implements RequestResultInterface
         }
     }
 
-    public function getHttpStatus()
+    public function getHttpStatus(): int
     {
         return $this->httpStatus;
     }
 
-    final public function getResponseBody()
+    final public function getResponseBody(): string|false
     {
-        $this->responseBody;
+        return $this->responseBody;
     }
 
-    final public function success()
+    final public function success(): bool
     {
         return $this->status === '00';
     }
 
-    final public function getStatus()
+    final public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    final public function getData()
+    final public function getData(): ?array
     {
         return $this->data;
     }

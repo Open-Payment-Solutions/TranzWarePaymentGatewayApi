@@ -9,8 +9,8 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
  */
 class HTTPClientResult implements HTTPClientResultInterface
 {
-    private $info;
-    private $output;
+    private array $info;
+    private string|false $output;
 
     /**
      * HTTPClientResult constructor.
@@ -18,7 +18,7 @@ class HTTPClientResult implements HTTPClientResultInterface
      * @param mixed $output
      * @param mixed $info
      */
-    public function __construct($output, $info)
+    public function __construct(string|false $output, array $info)
     {
         $this->info = $info;
         $this->output = $output;
@@ -27,7 +27,7 @@ class HTTPClientResult implements HTTPClientResultInterface
     /**
      * @return mixed
      */
-    final public function getOutput()
+    final public function getOutput(): string|false
     {
         return $this->output;
     }
@@ -35,7 +35,7 @@ class HTTPClientResult implements HTTPClientResultInterface
     /**
      * @return mixed
      */
-    final public function getInfo()
+    final public function getInfo(): array
     {
         return $this->info;
     }

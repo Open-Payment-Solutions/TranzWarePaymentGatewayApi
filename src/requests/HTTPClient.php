@@ -1,4 +1,5 @@
 <?php
+
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
@@ -8,13 +9,13 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
  */
 class HTTPClient implements HTTPClientInterface
 {
-    protected $url;
-    protected $body;
-    protected $ssl;
-    protected $debug = false;
-    protected $strictSSL = true;
-    protected $debugToFile;
-    protected $debugFileDescriptor;
+    protected string $url;
+    protected ?string $body;
+    protected ?array $ssl;
+    protected bool $debug = false;
+    protected bool $strictSSL = true;
+    protected ?string $debugToFile = null;
+    protected mixed $debugFileDescriptor = null;
 
     /**
      * HTTPClient constructor.
@@ -25,10 +26,10 @@ class HTTPClient implements HTTPClientInterface
      * @param bool   $strictSSL
      */
     public function __construct(
-        $url,
-        $body = null,
-        $ssl = null,
-        $strictSSL = true
+        string $url,
+        ?string $body = null,
+        ?array $ssl = null,
+        bool $strictSSL = true
     ) {
         $this->url = $url;
         $this->body = $body;
@@ -41,12 +42,24 @@ class HTTPClient implements HTTPClientInterface
      *
      * @param string $path_to_file
      */
-    final public function setDebugToFile($path_to_file)
+    final public function setDebugToFile(string $path_to_file): void
     {
-        if (is_string($path_to_file)) {
-            $this->debug = true;
-            $this->debugToFile = $path_to_file;
-            $this->debugFileDescriptor = fopen($path_to_file, 'w+');
+        $descriptor = @fopen($path_to_file, 'w+');
+        if ($descriptor === false) {
+            throw new \RuntimeException('Unable to open debug file: ' . $path_to_file);
+        }
+        if (is_resource($this->debugFileDescriptor)) {
+            fclose($this->debugFileDescriptor);
+        }
+        $this->debug = true;
+        $this->debugToFile = $path_to_file;
+        $this->debugFileDescriptor = $descriptor;
+    }
+
+    public function __destruct()
+    {
+        if (is_resource($this->debugFileDescriptor)) {
+            fclose($this->debugFileDescriptor);
         }
     }
 
@@ -55,7 +68,7 @@ class HTTPClient implements HTTPClientInterface
      *
      * @return HTTPClientResult
      */
-    final public function execute()
+    final public function execute(): HTTPClientResultInterface
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->url);
@@ -67,7 +80,7 @@ class HTTPClient implements HTTPClientInterface
         curl_setopt(
             $ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/xml',
-                'Content-Length: '.strlen($this->body)
+                'Content-Length: '.strlen($this->body ?? '')
             ]
         );
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
@@ -103,6 +116,7 @@ class HTTPClient implements HTTPClientInterface
         if ($this->debug) {
             fputs($this->debugFileDescriptor, "INFO: \n" . var_export($info, true));
             fputs($this->debugFileDescriptor, "OUTPUT: \n" . var_export($output, true));
+            fflush($this->debugFileDescriptor);
         }
 
         return new HTTPClientResult(
