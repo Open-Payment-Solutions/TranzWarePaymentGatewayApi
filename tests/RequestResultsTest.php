@@ -6,6 +6,7 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\HTTPClientResult;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderRequestResult;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequestResult;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderData;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderStatusData;
 
@@ -17,9 +18,10 @@ final class RequestResultsTest extends TestCase
      * @param class-string $class
      * @param string|false $body
      *
-     * @dataProvider emptyResults
-     * @return       void
+     * @see    self::emptyResults()
+     * @return void
      */
+    #[DataProvider('emptyResults')]
     public function testEmptyResponsesAreUnsuccessful(string $class, string|false $body): void
     {
         $result = new $class(new HTTPClientResult($body, []));
@@ -52,9 +54,10 @@ final class RequestResultsTest extends TestCase
      * @param class-string $class
      * @param string $body
      *
-     * @dataProvider invalidResults
-     * @return       void
+     * @see    self::invalidResults()
+     * @return void
      */
+    #[DataProvider('invalidResults')]
     public function testMalformedResponsesThrowWithoutPhpWarnings(string $class, string $body): void
     {
         $this->expectException(\UnexpectedValueException::class);
@@ -115,9 +118,10 @@ final class RequestResultsTest extends TestCase
      * @param string $status
      * @param bool $approved
      *
-     * @dataProvider statuses
-     * @return       void
+     * @see    self::statuses()
+     * @return void
      */
+    #[DataProvider('statuses')]
     public function testStatusResultsExposeOrderIdAndDetails(string $status, bool $approved): void
     {
         $body = '<TKKPG><Response><Status>00</Status><Details>Test details</Details><Order>'
@@ -149,9 +153,10 @@ final class RequestResultsTest extends TestCase
      * @param string $details
      * @param string $message
      *
-     * @dataProvider gatewayErrors
-     * @return       void
+     * @see    self::gatewayErrors()
+     * @return void
      */
+    #[DataProvider('gatewayErrors')]
     public function testMissingOrderThrowsGatewayDetailsOrDiagnostic(string $details, string $message): void
     {
         $this->expectException(\Exception::class);

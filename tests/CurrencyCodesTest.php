@@ -4,6 +4,7 @@ namespace tests;
 
 use OpenPaymentSolutions\TranzWarePaymentGateway\CurrencyCodes;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class CurrencyCodesTest extends TestCase
 {
@@ -12,9 +13,10 @@ final class CurrencyCodesTest extends TestCase
      *
      * @param CurrencyCodes $currency
      *
-     * @dataProvider currencies
-     * @return       void
+     * @see    self::currencies()
+     * @return void
      */
+    #[DataProvider('currencies')]
     public function testCurrencyCanBeParsedByNameOrCode(CurrencyCodes $currency): void
     {
         foreach (
@@ -48,9 +50,10 @@ final class CurrencyCodesTest extends TestCase
      *
      * @param string $currency
      *
-     * @dataProvider invalidCurrencies
-     * @return       void
+     * @see    self::invalidCurrencies()
+     * @return void
      */
+    #[DataProvider('invalidCurrencies')]
     public function testInvalidCurrencyIsRejected(string $currency): void
     {
         $this->assertFalse(CurrencyCodes::isValid($currency));

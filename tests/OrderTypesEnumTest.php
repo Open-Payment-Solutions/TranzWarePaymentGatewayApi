@@ -4,6 +4,7 @@ namespace tests;
 
 use OpenPaymentSolutions\TranzWarePaymentGateway\OrderTypes;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class OrderTypesEnumTest extends TestCase
 {
@@ -13,9 +14,10 @@ final class OrderTypesEnumTest extends TestCase
      * @param string $input
      * @param OrderTypes $expected
      *
-     * @dataProvider orderTypes
-     * @return       void
+     * @see    self::orderTypes()
+     * @return void
      */
+    #[DataProvider('orderTypes')]
     public function testFromStringReturnsEnumCase(string $input, OrderTypes $expected): void
     {
         $this->assertSame($expected, OrderTypes::fromString($input));
@@ -40,9 +42,10 @@ final class OrderTypesEnumTest extends TestCase
      *
      * @param string $input
      *
-     * @dataProvider invalidTypes
-     * @return       void
+     * @see    self::invalidTypes()
+     * @return void
      */
+    #[DataProvider('invalidTypes')]
     public function testUnknownOrderTypeThrowsSpecificException(string $input): void
     {
         $this->expectException(\OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderType::class);

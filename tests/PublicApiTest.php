@@ -17,6 +17,7 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequestResu
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\RequestInterface;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\RequestResultInterface;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderCallbackData;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderData;
 
@@ -66,9 +67,10 @@ final class PublicApiTest extends TestCase
      * @param string $sessionId
      * @param class-string<\Throwable> $exception
      *
-     * @dataProvider emptyIdentifiers
-     * @return       void
+     * @see    self::emptyIdentifiers()
+     * @return void
      */
+    #[DataProvider('emptyIdentifiers')]
     public function testStatusRequestStillRejectsEmptyIdentifiers($orderId, $sessionId, $exception): void
     {
         $this->expectException($exception);
@@ -93,9 +95,10 @@ final class PublicApiTest extends TestCase
      *
      * @param string $message
      *
-     * @dataProvider callbackMessages
-     * @return       void
+     * @see    self::callbackMessages()
+     * @return void
      */
+    #[DataProvider('callbackMessages')]
     public function testCallbackFactoryParsesXmlAndBase64($message): void
     {
         $previous = $_REQUEST;
@@ -170,9 +173,10 @@ final class PublicApiTest extends TestCase
      * @param string $status
      * @param bool $approved
      *
-     * @dataProvider orderStatuses
-     * @return       void
+     * @see    self::orderStatuses()
+     * @return void
      */
+    #[DataProvider('orderStatuses')]
     public function testStatusResultDistinguishesApprovalFromDecline($status, $approved): void
     {
         $result = new OrderStatusRequestResult(new HTTPClientResult(

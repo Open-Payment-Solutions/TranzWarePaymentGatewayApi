@@ -11,6 +11,7 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\HTTPClientResult;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderRequestResult;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequestResult;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class StructuredDataTest extends TestCase
 {
@@ -78,9 +79,10 @@ final class StructuredDataTest extends TestCase
      *
      * @param bool $encoded
      *
-     * @dataProvider encodings
-     * @return       void
+     * @see    self::encodings()
+     * @return void
      */
+    #[DataProvider('encodings')]
     public function testCallbackDataRetainsNamespacedAndRepeatedExtras(bool $encoded): void
     {
         $xml = '<Order xmlns:bank="urn:bank" bank:version="1"><TranDateTime>today</TranDateTime>'

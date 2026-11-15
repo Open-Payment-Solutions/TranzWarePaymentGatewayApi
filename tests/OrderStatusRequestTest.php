@@ -8,6 +8,7 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\OrderStatusRetrieveE
 use OpenPaymentSolutions\TranzWarePaymentGateway\RequestFactory;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequest;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use tests\fixtures\Transport;
 
 final class OrderStatusRequestTest extends TestCase
@@ -58,9 +59,10 @@ final class OrderStatusRequestTest extends TestCase
      * @param string|null $sessionId
      * @param class-string<\Throwable> $exception
      *
-     * @dataProvider invalidIdentifiers
-     * @return       void
+     * @see    self::invalidIdentifiers()
+     * @return void
      */
+    #[DataProvider('invalidIdentifiers')]
     public function testMissingIdentifiersAreRejectedBeforeTransport(
         bool $factory,
         ?string $orderId,
@@ -105,9 +107,10 @@ final class OrderStatusRequestTest extends TestCase
      * @param int $httpStatus
      * @param class-string<\Throwable> $cause
      *
-     * @dataProvider failedResponses
-     * @return       void
+     * @see    self::failedResponses()
+     * @return void
      */
+    #[DataProvider('failedResponses')]
     public function testRetrievalFailuresUseSpecificExceptionAndPreserveCause(
         string|false $body,
         int $httpStatus,
@@ -176,9 +179,10 @@ final class OrderStatusRequestTest extends TestCase
      * @param string $status
      * @param bool $approved
      *
-     * @dataProvider retrievedStatuses
-     * @return       void
+     * @see    self::retrievedStatuses()
+     * @return void
      */
+    #[DataProvider('retrievedStatuses')]
     public function testOrderOutcomeDoesNotCauseRetrievalException(string $status, bool $approved): void
     {
         Transport::$output = self::response('00', $status);

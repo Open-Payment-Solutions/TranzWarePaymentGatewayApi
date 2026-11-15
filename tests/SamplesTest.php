@@ -3,6 +3,7 @@
 namespace tests;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderCallbackData;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Data\OrderStatusData;
 
@@ -55,9 +56,10 @@ final class SamplesTest extends TestCase
      * @param array $scenario
      * @param string $message
      *
-     * @dataProvider rejectedOrders
-     * @return       void
+     * @see    self::rejectedOrders()
+     * @return void
      */
+    #[DataProvider('rejectedOrders')]
     public function testCreateSampleHandlesThrownFailures(array $scenario, string $message): void
     {
         $result = $this->runSample('create.php', $scenario);
@@ -114,9 +116,10 @@ final class SamplesTest extends TestCase
      * @param array $request
      * @param string $message
      *
-     * @dataProvider invalidCallbacks
-     * @return       void
+     * @see    self::invalidCallbacks()
+     * @return void
      */
+    #[DataProvider('invalidCallbacks')]
     public function testCallbackSamplesPrintExceptionMessages(string $sample, array $request, string $message): void
     {
         $result = $this->runSample($sample, ['request' => $request]);
@@ -148,9 +151,10 @@ final class SamplesTest extends TestCase
      * @param string $sample
      * @param string $message
      *
-     * @dataProvider validCallbacks
-     * @return       void
+     * @see    self::validCallbacks()
+     * @return void
      */
+    #[DataProvider('validCallbacks')]
     public function testCallbackSamplesDumpParsedDataOnSuccess(string $sample, string $message): void
     {
         $result = $this->runSample($sample, ['request' => ['xmlmsg' => $message]]);
@@ -183,9 +187,10 @@ final class SamplesTest extends TestCase
      *
      * @param string $status
      *
-     * @dataProvider retrievedStatuses
-     * @return       void
+     * @see    self::retrievedStatuses()
+     * @return void
      */
+    #[DataProvider('retrievedStatuses')]
     public function testStatusSampleDumpsRetrievedOutcome(string $status): void
     {
         $body = str_replace('</Order>', '<OrderStatus>' . $status . '</OrderStatus></Order>', self::orderResponse());
@@ -216,9 +221,10 @@ final class SamplesTest extends TestCase
      * @param int $status
      * @param string $message
      *
-     * @dataProvider failedStatusRequests
-     * @return       void
+     * @see    self::failedStatusRequests()
+     * @return void
      */
+    #[DataProvider('failedStatusRequests')]
     public function testStatusSampleDistinguishesValidationFromRetrievalFailures(
         array $scenario,
         int $status,

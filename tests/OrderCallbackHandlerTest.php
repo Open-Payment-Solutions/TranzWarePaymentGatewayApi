@@ -6,6 +6,7 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Handlers\OrderCallbackHandler;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\EmptyXMLMessage;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidXMLMessage;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class OrderCallbackHandlerTest extends TestCase
 {
@@ -16,9 +17,10 @@ final class OrderCallbackHandlerTest extends TestCase
      * @param class-string<\Throwable> $exception
      * @param string $message
      *
-     * @dataProvider invalidMessages
-     * @return       void
+     * @see    self::invalidMessages()
+     * @return void
      */
+    #[DataProvider('invalidMessages')]
     public function testInvalidCallbacksThrowSpecificExceptions(
         array $request,
         string $exception,

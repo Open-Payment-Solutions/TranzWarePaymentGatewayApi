@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.5.1
+
+- Raise the minimum PHP version to 8.2 and update the CI matrix.
+- Update case-converter to 3.7.0, PHPUnit to 11.5.58, and PHP_CodeSniffer to
+  4.0.4. Keep coding standard tools in development dependencies and declare the
+  runtime mbstring extension.
+- Migrate PHPUnit configuration and data providers to PHPUnit 11 attributes.
+  Coverage now requires Xdebug or PCOV.
+- Add a prominent compatibility alert and recommend the strict `1.2.3` requirement
+  for existing integrations that have not migrated to the newer API.
+- Expand the README to cover all API, data object, exception, and tooling changes
+  since 1.2.3.
+- Publish releases from validated version tags through GitHub Actions, using the
+  repository token. Version 1.5.1 removes any obsolete 1.5.0 release page after
+  successful publication, while preserving Git tags.
+
 ## 1.5.0
 
 ### Breaking changes
@@ -9,6 +25,7 @@
   object includes `__unparsed` for extra gateway fields, preserving XML nesting,
   repeated elements, attributes, namespaces, and mixed text. Missing order fields
   are null, including empty or rejected creation results.
+
 ### Documentation and tooling
 
 - Complete the request factory interface and add missing native void return types

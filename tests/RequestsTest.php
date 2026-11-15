@@ -10,6 +10,7 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequest;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderRequestResult;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequestResult;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use tests\fixtures\Transport;
 
 final class RequestsTest extends TestCase
@@ -63,9 +64,10 @@ final class RequestsTest extends TestCase
      * @param OrderTypes|string $type
      * @param string $expected
      *
-     * @dataProvider orderTypes
-     * @return       void
+     * @see    self::orderTypes()
+     * @return void
      */
+    #[DataProvider('orderTypes')]
     public function testOrderXmlContainsConfiguredValues(OrderTypes|string $type, string $expected): void
     {
         $factory = $this->factory();
@@ -160,9 +162,10 @@ final class RequestsTest extends TestCase
      * @param bool|null $certificateMode
      * @param bool $expected
      *
-     * @dataProvider certificateModes
-     * @return       void
+     * @see    self::certificateModes()
+     * @return void
      */
+    #[DataProvider('certificateModes')]
     public function testFactoryPreservesAndOverridesSslMode(string $mode, ?bool $certificateMode, bool $expected): void
     {
         $factory = $this->factory();

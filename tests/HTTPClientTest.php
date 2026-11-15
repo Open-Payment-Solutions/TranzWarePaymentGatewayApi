@@ -6,6 +6,7 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\HTTPClient;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\HTTPClientInterface;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\HTTPClientResult;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Data\HTTPInfo;
 use tests\fixtures\Transport;
 
@@ -65,9 +66,10 @@ final class HTTPClientTest extends TestCase
      *
      * @param bool $strict
      *
-     * @dataProvider sslModes
-     * @return       void
+     * @see    self::sslModes()
+     * @return void
      */
+    #[DataProvider('sslModes')]
     public function testCertificateAndVerificationOptions(bool $strict): void
     {
         $ssl = ['cert' => '/client.crt', 'key' => '/client.key', 'keyPass' => 'test-pass',
