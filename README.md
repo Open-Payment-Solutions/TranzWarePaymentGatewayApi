@@ -11,7 +11,7 @@
 PHP library for creating orders, checking order status, and parsing callbacks from
 Compass Plus TranzWare Payment Gateway (also known as TWEC PG).
 
-The current edition is **1.5.4** on `main`. The original edition is preserved on
+The current edition is **1.5.5** on `main`. The original edition is preserved on
 `v1.2.3` (formerly `master`), with release tag `1.2.3`.
 
 ## Installation
@@ -37,7 +37,7 @@ Keep the version free of `^` or `~` prefixes when you require the original API.
 For a new integration, or after migrating to the current API:
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.5.4"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.5.5"
 ```
 
 The current edition requires **PHP 8.2 or newer**, cURL, JSON, mbstring, and SimpleXML.
@@ -69,6 +69,7 @@ and the [changelog](CHANGELOG.md).
 | 1.5.2 | Track `composer.lock` for reproducible development and CI dependency installs. |
 | 1.5.3 | Harden CI permissions and release source validation; pin patched actions to commit SHAs. |
 | 1.5.4 | Require a tracked, current Composer lockfile in CI and reject dependency file changes during installation. |
+| 1.5.5 | Add a security policy with private vulnerability reporting and security update guidance. |
 
 ### Public API names
 
@@ -172,6 +173,12 @@ Verify the order through a server-side status request using your saved order and
 session IDs. A retrieved `DECLINED` or `CANCELED` outcome is a valid status result,
 not a retrieval exception. Preauthorization reserves funds; capture, refunds, and
 cancellation requests are not implemented by this package.
+
+## Security
+
+See the [security policy](SECURITY.md) for security update guidance and private
+vulnerability reporting instructions. Please do not report vulnerabilities in
+public issues.
 
 ## Tests and development
 

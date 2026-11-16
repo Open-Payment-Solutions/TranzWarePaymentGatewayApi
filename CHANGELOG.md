@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.5
+
+- Add a security policy with private vulnerability reporting instructions,
+  security update guidance, and coordinated disclosure expectations.
+- Link the security policy from the README and contributing guide.
+- Update installation instructions and sample dependencies to 1.5.5.
+
 ## 1.5.4
 
 - Require a nonempty, tracked `composer.lock` and enabled lockfile support before

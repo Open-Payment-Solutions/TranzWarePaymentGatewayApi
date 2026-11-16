@@ -3,6 +3,8 @@
 Thanks for being interested! Here's guidelines to contributing to package.
 
 ## Get Set Up
+- For suspected security vulnerabilities, follow the private reporting instructions
+  in [SECURITY.md](SECURITY.md) instead of opening a public ticket.
 - Check the issues to see if your problem has already been brought up.
 - Submit a ticket if it hasn't. Be sure to be clear and give instructions on how to reproduce the issue you're having.
 
