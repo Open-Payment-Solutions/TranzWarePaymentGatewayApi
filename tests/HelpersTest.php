@@ -6,9 +6,50 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function OpenPaymentSolutions\TranzWarePaymentGateway\toPascalCase;
+use function OpenPaymentSolutions\TranzWarePaymentGateway\getUserAgent;
 
 final class HelpersTest extends TestCase
 {
+    /**
+     * Build the default User-Agent from the package version and preserve optional overrides.
+     *
+     * @return void
+     */
+    public function testUserAgentUsesVersionAndAllowsOverrides(): void
+    {
+        $expected = 'OpenPaymentSolutions/TranzWarePaymentGateway/v'
+            . trim(file_get_contents(__DIR__ . '/../VERSION'));
+        $this->assertSame($expected, getUserAgent());
+        $this->assertSame('MyApplication/2.0', getUserAgent('MyApplication/2.0'));
+        $this->assertSame($expected, getUserAgent(null));
+    }
+
+    /**
+     * Reject empty or multiline User-Agent values before sending request headers.
+     *
+     * @param string $value
+     *
+     * @see    self::invalidUserAgents()
+     * @return void
+     */
+    #[DataProvider('invalidUserAgents')]
+    public function testInvalidUserAgentIsRejected(string $value): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        getUserAgent($value);
+    }
+
+    /**
+     * Provide empty values and attempts to inject additional headers.
+     *
+     * @return array
+     */
+    public static function invalidUserAgents(): array
+    {
+        return [[''], [' '], ["\t"], ["Client\r\nX-Injected: true"], ["Client\nInjected"],
+            ["Client\rInjected"], ["Client\0Injected"]];
+    }
+
     /**
      * Convert naming conventions without changing existing PascalCase behavior.
      *

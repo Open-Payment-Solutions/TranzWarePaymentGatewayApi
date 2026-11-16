@@ -10,6 +10,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Data\HTTPInfo;
 use tests\fixtures\Transport;
 
+use function OpenPaymentSolutions\TranzWarePaymentGateway\getUserAgent;
+
 final class HTTPClientTest extends TestCase
 {
     /**
@@ -49,16 +51,23 @@ final class HTTPClientTest extends TestCase
         $this->assertSame('<Response/>', $result->getOutput());
         $this->assertInstanceOf(HTTPInfo::class, $result->getInfo());
         $this->assertSame(200, $result->getInfo()->httpCode);
-        $this->assertSame([], $result->getInfo()->__unparsed);
+        $this->assertFalse($result->getInfo()->__unparsed['timed_out']);
+        $this->assertNull($result->getInfo()->__unparsed['error']);
         $options = Transport::$options;
-        $this->assertSame('https://gateway.example', $options[CURLOPT_URL]);
-        $this->assertSame(10, $options[CURLOPT_CONNECTTIMEOUT]);
-        $this->assertTrue($options[CURLOPT_POST]);
-        $this->assertTrue($options[CURLOPT_RETURNTRANSFER]);
-        $this->assertFalse($options[CURLOPT_HEADER]);
-        $this->assertFalse($options[CURLOPT_VERBOSE]);
-        $this->assertSame('<Request>€</Request>', $options[CURLOPT_POSTFIELDS]);
-        $this->assertSame(['Content-Type: application/xml', 'Content-Length: 22'], $options[CURLOPT_HTTPHEADER]);
+        $this->assertSame('https://gateway.example', Transport::$url);
+        $this->assertSame(10.0, $options['http']['timeout']);
+        $this->assertSame('POST', $options['http']['method']);
+        $this->assertSame(0, $options['http']['follow_location']);
+        $this->assertTrue($options['http']['ignore_errors']);
+        $this->assertSame('<Request>€</Request>', $options['http']['content']);
+        $this->assertSame(
+            ['Content-Type: application/xml', 'User-Agent: ' . getUserAgent(),
+                'Content-Length: 22', 'Connection: close'],
+            $options['http']['header']
+        );
+        $this->assertFalse($options['ssl']['verify_peer']);
+        $this->assertFalse($options['ssl']['verify_peer_name']);
+        $this->assertFalse(is_resource(Transport::$stream));
     }
 
     /**
@@ -75,14 +84,14 @@ final class HTTPClientTest extends TestCase
         $ssl = ['cert' => '/client.crt', 'key' => '/client.key', 'keyPass' => 'test-pass',
             'ca' => ['path' => '/ca', 'file' => '/ca/root.crt']];
         (new HTTPClient('https://gateway.example', '', $ssl, $strict))->execute();
-        $options = Transport::$options;
-        $this->assertSame('/client.crt', $options[CURLOPT_SSLCERT]);
-        $this->assertSame('/client.key', $options[CURLOPT_SSLKEY]);
-        $this->assertSame('test-pass', $options[CURLOPT_SSLCERTPASSWD]);
-        $this->assertSame('/ca', $options[CURLOPT_CAPATH]);
-        $this->assertSame('/ca/root.crt', $options[CURLOPT_CAINFO]);
-        $this->assertSame($strict ? 2 : 0, $options[CURLOPT_SSL_VERIFYHOST]);
-        $this->assertSame($strict, $options[CURLOPT_SSL_VERIFYPEER]);
+        $options = Transport::$options['ssl'];
+        $this->assertSame('/client.crt', $options['local_cert']);
+        $this->assertSame('/client.key', $options['local_pk']);
+        $this->assertSame('test-pass', $options['passphrase']);
+        $this->assertSame('/ca', $options['capath']);
+        $this->assertSame('/ca/root.crt', $options['cafile']);
+        $this->assertSame($strict, $options['verify_peer_name']);
+        $this->assertSame($strict, $options['verify_peer']);
     }
 
     /**
@@ -103,11 +112,12 @@ final class HTTPClientTest extends TestCase
     public function testMinimalCertificateAndEmptyBody(): void
     {
         (new HTTPClient('https://gateway.example', null, ['cert' => '/cert', 'key' => '/key']))->execute();
-        $this->assertArrayNotHasKey(CURLOPT_SSLCERTPASSWD, Transport::$options);
-        $this->assertArrayNotHasKey(CURLOPT_CAINFO, Transport::$options);
+        $this->assertArrayNotHasKey('passphrase', Transport::$options['ssl']);
+        $this->assertArrayNotHasKey('cafile', Transport::$options['ssl']);
         $this->assertSame(
-            ['Content-Type: application/xml', 'Content-Length: 0'],
-            Transport::$options[CURLOPT_HTTPHEADER]
+            ['Content-Type: application/xml', 'User-Agent: ' . getUserAgent(),
+                'Content-Length: 0', 'Connection: close'],
+            Transport::$options['http']['header']
         );
     }
 
@@ -136,12 +146,14 @@ final class HTTPClientTest extends TestCase
         try {
             $client = new HTTPClient('https://gateway.example', '<Request/>');
             $client->setDebugToFile($file);
+            $property = new \ReflectionProperty($client, 'debugFileDescriptor');
+            $oldDescriptor = $property->getValue($client);
             $client->setDebugToFile($file);
+            $this->assertFalse(is_resource($oldDescriptor));
             $client->execute();
-            $descriptor = Transport::$options[CURLOPT_STDERR];
-            $this->assertTrue(Transport::$options[CURLOPT_VERBOSE]);
+            $descriptor = $property->getValue($client);
             $log = file_get_contents($file);
-            foreach (['https://gateway.example', '<Request/>', 'http_code', '<Response/>'] as $text) {
+            foreach (['https://gateway.example', '<Request/>', 'httpCode', '<Response/>'] as $text) {
                 $this->assertStringContainsString($text, $log);
             }
             unset($client);
@@ -173,5 +185,23 @@ final class HTTPClientTest extends TestCase
         $this->assertSame('', $result->getOutput());
         $this->assertSame(0, $result->getInfo()->httpCode);
         $this->assertSame([], $result->getInfo()->__unparsed);
+    }
+
+    /**
+     * Override the User-Agent through the constructor or setter and restore its default.
+     *
+     * @return void
+     */
+    public function testUserAgentCanBeChangedAndReset(): void
+    {
+        $client = new HTTPClient('https://gateway.example', null, null, false, 'CustomClient/1.0');
+        $client->execute();
+        $this->assertContains('User-Agent: CustomClient/1.0', Transport::$options['http']['header']);
+        $client->setUserAgent('AnotherClient/2.0');
+        $client->execute();
+        $this->assertContains('User-Agent: AnotherClient/2.0', Transport::$options['http']['header']);
+        $client->setUserAgent(null);
+        $client->execute();
+        $this->assertContains('User-Agent: ' . getUserAgent(), Transport::$options['http']['header']);
     }
 }

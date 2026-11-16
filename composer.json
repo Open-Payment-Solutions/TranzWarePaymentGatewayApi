@@ -18,10 +18,13 @@
   ],
   "require": {
     "php": "^8.2",
-    "ext-curl": "*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-simplexml": "*"
+  },
+  "suggest": {
+    "ext-curl": "Preferred HTTP and HTTPS transport.",
+    "ext-openssl": "Required for HTTPS when using PHP streams."
   },
   "scripts": {
     "test": "./vendor/bin/phpunit",
@@ -43,7 +46,8 @@
       "OpenPaymentSolutions\\TranzWarePaymentGateway\\Handlers\\": "src/handlers/",
       "tests\\": "tests/",
       "OpenPaymentSolutions\\TranzWarePaymentGateway\\Exceptions\\": "src/exceptions/",
-      "OpenPaymentSolutions\\TranzWarePaymentGateway\\Data\\": "src/data/"
+      "OpenPaymentSolutions\\TranzWarePaymentGateway\\Data\\": "src/data/",
+      "OpenPaymentSolutions\\TranzWarePaymentGateway\\Transports\\": "src/transports/"
     }
   }
 }

@@ -14,9 +14,9 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\OrderStatusRequest;
  *  $requestFactory = new RequestFactory(
  *   'https://tranz-ware-payment-gateway/url',
  *   'E1000010',
- *   'https://your-site-address-here/samples/order_approved.php',
- *   'https://your-site-address-here/samples/order_declined.php',
- *   'https://your-site-address-here/samples/order_canceled.php',
+ *   'https://your-site-address-here/examples/order_approved.php',
+ *   'https://your-site-address-here/examples/order_declined.php',
+ *   'https://your-site-address-here/examples/order_canceled.php',
  *   'EN'
  *  );
  *  $keyFile = __DIR__.'/../certificates/your-private-key.pem';
@@ -63,18 +63,18 @@ class RequestFactory implements RequestFactoryInterface
         $this->setUrlProvider($urlProvider);
     }
 
-    private ?bool $strictSSL = null;
+    private bool $strictSSL = false;
     private ?string $sslCertificate = null;
     private ?string $sslKey = null;
     private ?string $sslKeyPass = null;
 
     /**
-     * Setting certificate, key file, key pass (default: ''), strict mode (default: enabled)
+     * Setting certificate, key file, key pass (default: ''), strict mode (default: disabled)
      *
      * @param string $certFile  Path to certificate
      * @param string $keyFile   Path to private key
      * @param string|null $keyPass   (optional) Password provided in creation of private key
-     * @param bool|null $strictSSL (optional) Enables or disables SSL host verification (default: enabled)
+     * @param bool|null $strictSSL (optional) Overrides the current SSL host verification setting
      *
      * @return RequestFactory
      */
@@ -87,12 +87,8 @@ class RequestFactory implements RequestFactoryInterface
         $this->sslKey = $keyFile;
         $this->sslKeyPass = $keyPass;
         $this->sslCertificate = $certFile;
-        if (is_null($strictSSL)) {
-            if (is_null($this->strictSSL)) {
-                $this->enableSSLVerification();
-            }
-        } else {
-            $this->strictSSL = (bool)$strictSSL;
+        if ($strictSSL !== null) {
+            $this->strictSSL = $strictSSL;
         }
 
         return $this;
@@ -156,6 +152,20 @@ class RequestFactory implements RequestFactoryInterface
 
     protected bool $debug = false;
     protected ?string $debugFile = null;
+    private ?string $userAgent = null;
+
+    /**
+     * Override the User-Agent or reset it to the package default with null.
+     *
+     * @param string|null $userAgent
+     *
+     * @return self
+     */
+    final public function setUserAgent(?string $userAgent): self
+    {
+        $this->userAgent = $userAgent === null ? null : getUserAgent($userAgent);
+        return $this;
+    }
 
     /**
      * Set the request debug output file.
@@ -201,6 +211,7 @@ class RequestFactory implements RequestFactoryInterface
             $this->debug ? $this->debugFile : null
         );
         $request->setSslCertificate($this->sslCertificate, $this->sslKey, $this->sslKeyPass, $this->strictSSL);
+        $request->setUserAgent($this->userAgent);
         return $request;
     }
 
@@ -259,6 +270,7 @@ class RequestFactory implements RequestFactoryInterface
             $this->debug ? $this->debugFile : null
         );
         $request->setSslCertificate($this->sslCertificate, $this->sslKey, $this->sslKeyPass, $this->strictSSL);
+        $request->setUserAgent($this->userAgent);
         return $request;
     }
 }

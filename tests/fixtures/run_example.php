@@ -21,4 +21,4 @@ register_shutdown_function(static function (): void {
     ], JSON_THROW_ON_ERROR);
 });
 
-require __DIR__ . '/../../samples/' . basename($argv[1]);
+require __DIR__ . '/../../examples/' . basename($argv[1]);

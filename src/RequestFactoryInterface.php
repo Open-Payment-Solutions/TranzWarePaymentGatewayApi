@@ -12,6 +12,15 @@ use OpenPaymentSolutions\TranzWarePaymentGateway\Requests\RequestInterface;
 interface RequestFactoryInterface
 {
     /**
+     * Override the User-Agent or reset it to the package default with null.
+     *
+     * @param string|null $userAgent
+     *
+     * @return self
+     */
+    public function setUserAgent(?string $userAgent): self;
+
+    /**
      * RequestFactoryInterface constructor.
      *
      * @param string $GATEWAY_URL

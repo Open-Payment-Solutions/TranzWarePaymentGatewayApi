@@ -2,6 +2,10 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
+use OpenPaymentSolutions\TranzWarePaymentGateway\TransportFactory;
+
+use function OpenPaymentSolutions\TranzWarePaymentGateway\getUserAgent;
+
 /**
  * Class HTTPClient
  *
@@ -13,9 +17,10 @@ class HTTPClient implements HTTPClientInterface
     protected ?string $body;
     protected ?array $ssl;
     protected bool $debug = false;
-    protected bool $strictSSL = true;
+    protected bool $strictSSL = false;
     protected ?string $debugToFile = null;
     protected mixed $debugFileDescriptor = null;
+    protected ?string $userAgent = null;
 
     /**
      * HTTPClient constructor.
@@ -24,17 +29,32 @@ class HTTPClient implements HTTPClientInterface
      * @param string|null $body
      * @param array|null $ssl
      * @param bool $strictSSL
+     * @param string|null $userAgent
      */
     public function __construct(
         string $url,
         ?string $body = null,
         ?array $ssl = null,
-        bool $strictSSL = true
+        bool $strictSSL = false,
+        ?string $userAgent = null
     ) {
         $this->url = $url;
         $this->body = $body;
         $this->ssl = $ssl;
         $this->strictSSL = $strictSSL;
+        $this->setUserAgent($userAgent);
+    }
+
+    /**
+     * Override the User-Agent or reset it to the package default with null.
+     *
+     * @param string|null $userAgent
+     *
+     * @return void
+     */
+    final public function setUserAgent(?string $userAgent): void
+    {
+        $this->userAgent = $userAgent === null ? null : getUserAgent($userAgent);
     }
 
     /**
@@ -72,60 +92,27 @@ class HTTPClient implements HTTPClientInterface
      */
     final public function execute(): HTTPClientResultInterface
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->url);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_VERBOSE, $this->debug);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt(
-            $ch,
-            CURLOPT_HTTPHEADER,
-            [
-                'Content-Type: application/xml',
-                'Content-Length: ' . strlen($this->body ?? '')
-            ]
+        $transport = (new TransportFactory())->create(
+            $this->url,
+            $this->body,
+            $this->ssl,
+            $this->strictSSL,
+            $this->userAgent
         );
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
-
-        if ($this->ssl) {
-            curl_setopt($ch, CURLOPT_SSLCERT, $this->ssl['cert']);
-            curl_setopt($ch, CURLOPT_SSLKEY, $this->ssl['key']);
-
-            if (isset($this->ssl['keyPass'])) {
-                curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $this->ssl['keyPass']);
-            }
-
-            if (isset($this->ssl['ca'])) {
-                $sslCAPath = $this->ssl['ca']['path'];
-                $sslCAFile = $this->ssl['ca']['file'];
-                curl_setopt($ch, CURLOPT_CAPATH, $sslCAPath);
-                curl_setopt($ch, CURLOPT_CAINFO, $sslCAFile);
-            }
-
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, (bool)$this->strictSSL ? 2 : 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (bool)$this->strictSSL);
-        }
 
         if ($this->debug) {
-            curl_setopt($ch, CURLOPT_STDERR, $this->debugFileDescriptor);
             fputs($this->debugFileDescriptor, "URL: " . $this->url);
             fputs($this->debugFileDescriptor, "BODY: \n" . var_export($this->body, true));
         }
 
-        $output = curl_exec($ch);
-        $info = curl_getinfo($ch);
+        $result = $transport->execute();
 
         if ($this->debug) {
-            fputs($this->debugFileDescriptor, "INFO: \n" . var_export($info, true));
-            fputs($this->debugFileDescriptor, "OUTPUT: \n" . var_export($output, true));
+            fputs($this->debugFileDescriptor, "INFO: \n" . var_export($result->getInfo(), true));
+            fputs($this->debugFileDescriptor, "OUTPUT: \n" . var_export($result->getOutput(), true));
             fflush($this->debugFileDescriptor);
         }
 
-        return new HTTPClientResult(
-            $output,
-            $info
-        );
+        return $result;
     }
 }

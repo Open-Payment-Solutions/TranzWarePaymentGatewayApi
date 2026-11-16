@@ -209,7 +209,7 @@ final class OrderStatusRequestTest extends TestCase
     public function testZeroIsNotAnEmptyIdentifier(): void
     {
         (new OrderStatusRequest('https://gateway.example', 'merchant', '0', '0'))->execute();
-        $xml = simplexml_load_string(Transport::$options[CURLOPT_POSTFIELDS]);
+        $xml = simplexml_load_string(Transport::$options['http']['content']);
         $this->assertSame('0', (string)$xml->Request->Order->OrderID);
         $this->assertSame('0', (string)$xml->Request->SessionID);
     }

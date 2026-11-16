@@ -11,7 +11,7 @@
 PHP library for creating orders, checking order status, and parsing callbacks from
 Compass Plus TranzWare Payment Gateway (also known as TWEC PG).
 
-The current edition is **1.6.0** on `main`. The original edition is preserved on
+The current edition is **1.7.1** on `main`. The original edition is preserved on
 `v1.2.3` (formerly `master`), with release tag `1.2.3`.
 
 ## Installation
@@ -37,10 +37,12 @@ Keep the version free of `^` or `~` prefixes when you require the original API.
 For a new integration, or after migrating to the current API:
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.6.0"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.7.1"
 ```
 
-The current edition requires **PHP 8.2 or newer**, cURL, JSON, mbstring, and SimpleXML.
+The current edition requires **PHP 8.2 or newer**, JSON, mbstring, and SimpleXML.
+Enable cURL for the preferred HTTP/HTTPS transport. Without cURL, enable
+`allow_url_fopen` for PHP streams and OpenSSL for HTTPS.
 Your bank must provide the gateway URL, merchant ID, and client certificate and
 private key. PHP_CodeSniffer and PHPUnit are development dependencies.
 
@@ -52,7 +54,7 @@ Start with the [integration guide](docs/README.md), including examples for:
 - [Creating purchase and preauthorization orders](docs/README.md#create-an-order).
 - [Parsing callbacks and verifying order status](docs/README.md#handle-the-return-and-check-status).
 
-See also the [sample scripts](samples), the
+See also the [example scripts](examples), the
 [gateway integration manual in Russian](docs/Integration_Instruction_TWEC_PG.pdf),
 and the [changelog](CHANGELOG.md).
 
@@ -63,7 +65,7 @@ and the [changelog](CHANGELOG.md).
 | 1.3.0 | Shorter public class, interface, and trait names; the old names have no aliases. |
 | 1.3.1 | GitHub Actions compatibility fixes. |
 | 1.4.0 | PHP 8.1 minimum, native types, backed enums, typed exceptions, automatic XML escaping, and result parsing fixes. |
-| 1.4.1 | PSR-12 formatting and coding standard checks across source, tests, and samples. |
+| 1.4.1 | PSR-12 formatting and coding standard checks across source, tests, and examples. |
 | 1.5.0 | Typed data objects with camelCase properties and `__unparsed`; complete factory interface and PHPDoc. |
 | 1.5.1 | PHP 8.2 minimum, refreshed dependencies and test tooling, and explicit compatibility guidance. |
 | 1.5.2 | Track `composer.lock` for reproducible development and CI dependency installs. |
@@ -71,6 +73,7 @@ and the [changelog](CHANGELOG.md).
 | 1.5.4 | Require a tracked, current Composer lockfile in CI and reject dependency file changes during installation. |
 | 1.5.5 | Add a security policy with private vulnerability reporting and security update guidance. |
 | 1.6.0 | Replace the case-converter dependency with an autoloaded PascalCase utility; preserve order type normalization. |
+| 1.7.1 | Prefer cURL with checked stream fallback, default strictSSL to false, add configurable versioned User-Agent, rename examples, and add Docker integration CI. |
 
 ### Public API names
 
@@ -152,7 +155,9 @@ rejected creation results. `getResponseBody()` returns the raw response string o
 Every data object also includes **`__unparsed`**, an array that defaults to `[]`.
 Extra gateway fields retain their original names and nesting, including repeated
 XML elements, namespaces, attributes (`@attributes`), and mixed text (`#text`).
-Other cURL metadata retains its original keys in `HTTPInfo::__unparsed`.
+Transport diagnostics are retained in `HTTPInfo::__unparsed`. Streams provide
+`response_headers`, `timed_out`, and `error`; cURL retains its connection and
+timing fields along with `error`.
 
 ```php
 $order = $result->getData();
@@ -177,7 +182,7 @@ The library's custom exceptions live under
 
 `OrderStatusRetrieveException::getPrevious()` exposes the underlying cause.
 Malformed responses parsed directly by result classes throw
-`UnexpectedValueException`. Samples catch input errors with HTTP 400 and retrieval
+`UnexpectedValueException`. Examples catch input errors with HTTP 400 and retrieval
 failures with HTTP 502, displaying `$e->getMessage()`.
 
 Request values are XML-escaped automatically. Pass original text without
@@ -205,8 +210,59 @@ composer lint
 composer test
 ```
 
+`HTTPClient` uses `TransportFactory` to prefer `Transports\CurlTransport` when
+the cURL extension, required functions, and requested protocol are available.
+Otherwise it selects `Transports\HTTPTransport` or `Transports\HTTPSTransport`
+after checking stream functions, URL wrappers, `allow_url_fopen`, and the TCP/TLS
+features needed by the URL. If neither backend is usable, it throws
+`Exceptions\TransportNotAvailable` with the reasons for each backend.
+
+Both backends POST XML and support client certificates, encrypted private keys,
+and custom CA trust for HTTPS. **`strictSSL` defaults to `false`.** Pass `true` or
+call `enableSSLVerification()` to enable server certificate and hostname checks.
+Redirects are not followed; HTTP error responses retain their bodies. Stream reads
+use a 10-second timeout; cURL uses a 10-second connection timeout. The factory
+selects a backend before sending; failed requests are not retried through another
+transport.
+
+Requests send `User-Agent: OpenPaymentSolutions/TranzWarePaymentGateway/v1.7.1`
+by default. The version comes from the package's `VERSION` file. Override it
+before creating requests, or pass `null` to restore the package default:
+
+```php
+$factory->setUserAgent('MyShop/2.0');
+$request = $factory->createOrderPurchaseRequest(100, '840');
+$request->setUserAgent('OrderWorker/2.0');
+$factory->setUserAgent(null);
+```
+
+`HTTPClient` also accepts an optional fifth constructor argument, `userAgent`,
+and provides `setUserAgent()`. Direct transports and `TransportFactory::create()`
+accept optional overrides too. Empty values and CR, LF, or NUL bytes are rejected.
+Custom implementations of `RequestFactoryInterface`, `RequestInterface`, and
+`HTTPClientInterface` must provide the new `setUserAgent()` method; the HTTP
+client interface also adds the optional constructor argument.
+
+`composer test` uses in-memory responses without network requests or Docker.
+Run the real HTTP, HTTPS, and mutual TLS checks separately:
+
+```sh
+sh tests/integration/transports/run.sh --matrix
+```
+
+The [standalone Docker suite](tests/integration/transports/README.md) runs a
+mock server and PHP clients over a private Docker network. It generates and
+verifies fresh server and client certificates before each run, then removes its
+containers and certificate volume. GitHub Actions runs four combinations of
+cURL/streams and strictSSL enabled/disabled as separate integration jobs on pushes
+and pull requests. To select a single configuration:
+
+```sh
+TWPG_TEST_WITH_CURL=1 TWPG_TEST_STRICT_SSL=1 sh tests/integration/transports/run.sh
+```
+
 `composer format` applies automatic PSR-12 fixes. `composer lint` also validates
-PHPDoc across source, tests, and samples. Dependency versions should be checked
+PHPDoc across source, tests, and examples. Dependency versions should be checked
 against current stable releases while respecting the PHP minimum. PHPUnit data
 providers use `#[DataProvider(...)]` attributes; PHPDoc retains their parameter
 and return documentation.

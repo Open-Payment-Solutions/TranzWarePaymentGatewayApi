@@ -30,3 +30,24 @@ function toPascalCase(string $value): string
         $words
     ));
 }
+
+/**
+ * Resolve the package User-Agent or validate an optional application override.
+ *
+ * @param string|null $value
+ *
+ * @return string
+ */
+function getUserAgent(?string $value = null): string
+{
+    if ($value !== null) {
+        if (trim($value) === '' || strpbrk($value, "\r\n\0") !== false) {
+            throw new \InvalidArgumentException('User-Agent must be nonempty and contain no CR, LF, or NUL bytes.');
+        }
+        return $value;
+    }
+
+    static $default;
+    return $default ??= 'OpenPaymentSolutions/TranzWarePaymentGateway/v'
+        . trim(file_get_contents(__DIR__ . '/../VERSION'));
+}

@@ -3,7 +3,7 @@
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
 /**
- * Open an in-memory stream for sample debug output.
+ * Open an in-memory stream for example debug output.
  *
  * @param string $path
  * @param string $mode

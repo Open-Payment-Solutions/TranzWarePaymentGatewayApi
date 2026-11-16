@@ -22,9 +22,9 @@ if (($orderId !== null && !is_string($orderId)) || ($sessionId !== null && !is_s
 $requestFactory = new RequestFactory(
     'https://tranz-ware-payment-gateway/url',
     'E1000010',
-    'https://your-site-address-here/samples/order_approved.php',
-    'https://your-site-address-here/samples/order_declined.php',
-    'https://your-site-address-here/samples/order_canceled.php',
+    'https://your-site-address-here/examples/order_approved.php',
+    'https://your-site-address-here/examples/order_declined.php',
+    'https://your-site-address-here/examples/order_canceled.php',
     'EN'
 );
 $keyFile = __DIR__ . '/certificates/your-private-key.pem';

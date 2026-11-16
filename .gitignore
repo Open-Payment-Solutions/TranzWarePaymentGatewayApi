@@ -1,8 +1,8 @@
 .DS_Store
 .idea
 vendor
-samples/vendor
-samples/composer.lock
+examples/vendor
+examples/composer.lock
 manual.docx
 phpunit.phar
 .phpunit.result.cache

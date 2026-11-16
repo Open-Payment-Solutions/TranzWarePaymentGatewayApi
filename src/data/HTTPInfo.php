@@ -12,7 +12,7 @@ class HTTPInfo
     public readonly array $__unparsed;
 
     /**
-     * Normalize HTTP transport fields and retain other cURL information.
+     * Normalize HTTP transport fields and retain other transport information.
      *
      * @param array $info
      */

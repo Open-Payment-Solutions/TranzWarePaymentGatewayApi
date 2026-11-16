@@ -69,7 +69,8 @@ class OrderStatusRequest implements RequestInterface
                 $this->requestAttributes['requestUrl'],
                 $this->getRequestBody(),
                 $ssl,
-                $this->strictSSL
+                $this->strictSSL,
+                $this->userAgent
             );
             if ($this->debugToFile) {
                 $httpClient->setDebugToFile($this->debugToFile);

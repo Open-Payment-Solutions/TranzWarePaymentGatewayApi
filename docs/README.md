@@ -1,4 +1,4 @@
-# Integration guide — 1.6.0
+# Integration guide — 1.7.1
 
 This guide uses the shortened API names introduced in 1.3.0 on `main`.
 For the original names, use [edition 1.2.3](../README.md#using-the-previous-edition-123).
@@ -7,10 +7,11 @@ When upgrading, follow the [migration instructions](../CHANGELOG.md#130).
 ## Install
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.6.0"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.7.1"
 ```
 
-Use PHP 8.2 or newer and enable cURL, JSON, mbstring, and SimpleXML. Obtain your merchant ID,
+Use PHP 8.2 or newer and enable JSON, mbstring, and SimpleXML. HTTP requests prefer
+cURL; without it, enable `allow_url_fopen` and OpenSSL for HTTPS streams. Obtain your merchant ID,
 gateway URL, signed client certificate, private key, and optional key password
 from your bank. Configure the public HTTPS return URLs for your application.
 
@@ -58,9 +59,17 @@ return $factory;
 
 `TWPG_GATEWAY_URL` is the bank's XML API endpoint. `TWPG_RETURN_BASE_URL` is your
 application's public HTTPS base URL, such as `https://shop.example/payments`.
-Certificate and key settings are filesystem paths. TLS verification should stay
-enabled; configure the bank's trusted CA in your PHP/cURL environment if needed.
-The supplied certificate files in `samples/` are placeholders.
+Certificate and key settings are filesystem paths. This example explicitly
+enables TLS verification; `strictSSL` defaults to `false`. Configure the
+bank's trusted CA in your PHP transport environment if needed.
+The supplied certificate files in `examples/` are placeholders.
+
+Requests send the package name and version as their User-Agent by default.
+Optionally set `$factory->setUserAgent('MyShop/2.0')` before creating a request;
+an individual request can override it with `$request->setUserAgent('Worker/2.0')`.
+Pass `null` to restore the package default. These settings also apply to status
+requests. To use strict server verification, retain the explicit
+`enableSSLVerification()` call shown above.
 
 ## Create an order
 
@@ -253,8 +262,14 @@ lists. XML attributes use `@attributes`, and mixed text uses `#text`. Namespaced
 extra fields retain their prefix, or use `{namespace-uri}name` for a default namespace.
 
 `HTTPClientResult::getInfo()` returns `Data\HTTPInfo` with `httpCode`, `url`,
-`contentType`, and `totalTime` properties. Other cURL values retain their original
-keys inside `__unparsed`. Raw response bodies remain available through `getOutput()`.
+`contentType`, and `totalTime` properties. Stream diagnostics (`response_headers`,
+`timed_out`, and `error`) or cURL connection information and `error` are stored
+inside `__unparsed`. Raw response bodies remain available through `getOutput()`.
+
+If neither cURL nor the necessary PHP stream features are available,
+`Exceptions\TransportNotAvailable` explains the missing requirements. Status
+requests wrap failures in `OrderStatusRetrieveException`; inspect `getPrevious()`
+for the original exception.
 
 For temporary diagnostics, set a writable file before creating a request:
 
@@ -266,5 +281,5 @@ Debug output includes request/response bodies and session identifiers. Restrict
 file access and remove logs when finished; each request opens the file in `w+`
 mode, overwriting it. Leave debugging off during normal operation.
 
-For additional examples, see [samples](../samples). For the gateway protocol,
+For additional examples, see [examples](../examples). For the gateway protocol,
 see the [integration manual in Russian](Integration_Instruction_TWEC_PG.pdf).

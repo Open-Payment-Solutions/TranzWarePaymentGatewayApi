@@ -1,0 +1,29 @@
+services:
+  server:
+    build: .
+    volumes:
+      - certificates:/certs
+    networks:
+      default:
+        aliases: [wrong-server]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')"]
+      interval: 1s
+      timeout: 2s
+      retries: 30
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+      args:
+        WITH_CURL: ${TWPG_TEST_WITH_CURL:-0}
+    environment:
+      TWPG_TEST_WITH_CURL: ${TWPG_TEST_WITH_CURL:-0}
+      TWPG_TEST_STRICT_SSL: ${TWPG_TEST_STRICT_SSL:-0}
+    working_dir: /app
+    volumes:
+      - ../../..:/app:ro
+      - certificates:/certs:ro
+    command: [php, tests/integration/transports/run.php]
+volumes:
+  certificates:

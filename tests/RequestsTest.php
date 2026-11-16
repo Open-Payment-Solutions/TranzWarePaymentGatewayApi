@@ -16,6 +16,27 @@ use tests\fixtures\Transport;
 final class RequestsTest extends TestCase
 {
     /**
+     * Apply optional User-Agent configuration to both order and status requests.
+     *
+     * @return void
+     */
+    public function testFactoryUserAgentReachesOrderAndStatusRequests(): void
+    {
+        $factory = $this->factory();
+        $this->assertSame($factory, $factory->setUserAgent('CustomShop/1.0'));
+        $requests = [$factory->createOrderPurchaseRequest(1, '840'), $factory->createOrderStatusRequest('1', 's')];
+        foreach ($requests as $request) {
+            $request->execute();
+            $this->assertContains('User-Agent: CustomShop/1.0', Transport::$options['http']['header']);
+            $request->setUserAgent('RequestOverride/2.0');
+            $request->execute();
+            $this->assertContains('User-Agent: RequestOverride/2.0', Transport::$options['http']['header']);
+        }
+        $factory->setUserAgent(null)->createOrderPurchaseRequest(1, '840')->execute();
+        $this->assertNotContains('User-Agent: CustomShop/1.0', Transport::$options['http']['header']);
+    }
+
+    /**
      * Prepare the simulated HTTP transport.
      *
      * @return void
@@ -74,7 +95,7 @@ final class RequestsTest extends TestCase
         $this->assertSame($factory, $factory->setCertificate('/client.crt', '/client.key', 'pass'));
         $result = $factory->createOrderRequest(12.5, '944', 'A&B <test> "quoted"', $type)->execute();
         $this->assertInstanceOf(OrderRequestResult::class, $result);
-        $xml = simplexml_load_string(Transport::$options[CURLOPT_POSTFIELDS]);
+        $xml = simplexml_load_string(Transport::$options['http']['content']);
         $this->assertSame('CreateOrder', (string)$xml->Request->Operation);
         $this->assertSame('AZ', (string)$xml->Request->Language);
         $order = $xml->Request->Order;
@@ -86,10 +107,10 @@ final class RequestsTest extends TestCase
         $this->assertSame('https://shop.example/approved?a=1&b=2', (string)$order->ApproveURL);
         $this->assertSame('https://shop.example/declined', (string)$order->DeclineURL);
         $this->assertSame('https://shop.example/canceled', (string)$order->CancelURL);
-        $this->assertSame('/client.crt', Transport::$options[CURLOPT_SSLCERT]);
-        $this->assertSame('/client.key', Transport::$options[CURLOPT_SSLKEY]);
-        $this->assertSame('pass', Transport::$options[CURLOPT_SSLCERTPASSWD]);
-        $this->assertSame(2, Transport::$options[CURLOPT_SSL_VERIFYHOST]);
+        $this->assertSame('/client.crt', Transport::$options['ssl']['local_cert']);
+        $this->assertSame('/client.key', Transport::$options['ssl']['local_pk']);
+        $this->assertSame('pass', Transport::$options['ssl']['passphrase']);
+        $this->assertFalse(Transport::$options['ssl']['verify_peer_name']);
     }
 
     /**
@@ -111,7 +132,7 @@ final class RequestsTest extends TestCase
     public function testCurrencyEnumIsSerializedAsNumericCode(): void
     {
         $this->factory()->createOrderPurchaseRequest(1, CurrencyCodes::EUR)->execute();
-        $xml = simplexml_load_string(Transport::$options[CURLOPT_POSTFIELDS]);
+        $xml = simplexml_load_string(Transport::$options['http']['content']);
         $this->assertSame('978', (string)$xml->Request->Order->Currency);
     }
 
@@ -123,7 +144,7 @@ final class RequestsTest extends TestCase
     public function testUnsupportedNumericCurrencyCanStillBeSentAsString(): void
     {
         $this->factory()->createOrderPurchaseRequest(1, '826')->execute();
-        $xml = simplexml_load_string(Transport::$options[CURLOPT_POSTFIELDS]);
+        $xml = simplexml_load_string(Transport::$options['http']['content']);
         $this->assertSame('826', (string)$xml->Request->Order->Currency);
     }
 
@@ -147,7 +168,7 @@ final class RequestsTest extends TestCase
     {
         $result = $this->factory()->createOrderStatusRequest('123<&', 'session&<>')->execute();
         $this->assertInstanceOf(OrderStatusRequestResult::class, $result);
-        $xml = simplexml_load_string(Transport::$options[CURLOPT_POSTFIELDS]);
+        $xml = simplexml_load_string(Transport::$options['http']['content']);
         $this->assertSame('GetOrderStatus', (string)$xml->Request->Operation);
         $this->assertSame('AZ', (string)$xml->Request->Language);
         $this->assertSame('merchant&123', (string)$xml->Request->Order->Merchant);
@@ -175,7 +196,7 @@ final class RequestsTest extends TestCase
         $factory->setCertificate('/cert', '/key', '', $certificateMode);
         foreach ([$factory->createOrderRequest(1, '840'), $factory->createOrderStatusRequest('1', 's')] as $request) {
             $request->execute();
-            $this->assertSame($expected, Transport::$options[CURLOPT_SSL_VERIFYPEER]);
+            $this->assertSame($expected, Transport::$options['ssl']['verify_peer']);
         }
     }
 
@@ -186,7 +207,7 @@ final class RequestsTest extends TestCase
      */
     public static function certificateModes(): array
     {
-        return [['', null, true], ['disableSSLVerification', null, false],
+        return [['', null, false], ['disableSSLVerification', null, false],
             ['enableSSLVerification', null, true], ['disableSSLVerification', true, true],
             ['enableSSLVerification', false, false]];
     }
@@ -206,7 +227,7 @@ final class RequestsTest extends TestCase
             ] as $method => $expected
         ) {
             $factory->$method(1, '840')->execute();
-            $xml = simplexml_load_string(Transport::$options[CURLOPT_POSTFIELDS]);
+            $xml = simplexml_load_string(Transport::$options['http']['content']);
             $this->assertSame($expected, (string)$xml->Request->Order->OrderType);
         }
     }
@@ -229,7 +250,6 @@ final class RequestsTest extends TestCase
                 ] as $request
             ) {
                 $request->execute();
-                $this->assertTrue(Transport::$options[CURLOPT_VERBOSE]);
                 $this->assertStringContainsString('<TKKPG>', file_get_contents($file));
             }
         } finally {
@@ -250,13 +270,13 @@ final class RequestsTest extends TestCase
             $request->setSslCertificate('/cert', '/key', 'pass');
             $request->disableSSLVerification();
             $request->execute();
-            $this->assertFalse(Transport::$options[CURLOPT_SSL_VERIFYPEER]);
+            $this->assertFalse(Transport::$options['ssl']['verify_peer']);
             $request->enableSSLVerification();
             $request->execute();
-            $this->assertTrue(Transport::$options[CURLOPT_SSL_VERIFYPEER]);
+            $this->assertTrue(Transport::$options['ssl']['verify_peer']);
             $request->setStrictSSL(false);
             $request->execute();
-            $this->assertFalse(Transport::$options[CURLOPT_SSL_VERIFYPEER]);
+            $this->assertFalse(Transport::$options['ssl']['verify_peer']);
         }
     }
 }

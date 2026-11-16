@@ -6,52 +6,62 @@ final class Transport
 {
     public static bool $enabled = false;
     public static array $options = [];
+    public static string $url = '';
+    public static mixed $stream = null;
     public static string|false $output = '';
     public static array $info = [];
 }
 
-namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
+namespace OpenPaymentSolutions\TranzWarePaymentGateway\Transports;
 
 use tests\fixtures\Transport;
 
 /**
- * Record cURL options when transport simulation is enabled.
+ * Record stream options and provide an in-memory response during unit tests.
  *
- * @param \CurlHandle $handle
- * @param int $option
- * @param mixed $value
+ * @param string $filename
+ * @param string $mode
+ * @param bool $useIncludePath
+ * @param resource|null $context
  *
- * @return bool
+ * @return resource|false
  */
-function curl_setopt(\CurlHandle $handle, int $option, mixed $value): bool
+function fopen(string $filename, string $mode, bool $useIncludePath = false, $context = null)
 {
     if (!Transport::$enabled) {
-        return \curl_setopt($handle, $option, $value);
+        return \fopen($filename, $mode, $useIncludePath, $context);
     }
-    Transport::$options[$option] = $value;
-    return true;
+    Transport::$url = $filename;
+    Transport::$options = stream_context_get_options($context);
+    if (Transport::$output === false) {
+        Transport::$stream = false;
+        return false;
+    }
+    $stream = \fopen('php://temp', 'w+');
+    fwrite($stream, Transport::$output);
+    rewind($stream);
+    Transport::$stream = $stream;
+    return $stream;
 }
 
 /**
- * Return the simulated response or execute the real cURL request.
+ * Provide simulated HTTP response headers and timeout state.
  *
- * @param \CurlHandle $handle
- *
- * @return string|bool
- */
-function curl_exec(\CurlHandle $handle): string|bool
-{
-    return Transport::$enabled ? Transport::$output : \curl_exec($handle);
-}
-
-/**
- * Return simulated or real cURL transport information.
- *
- * @param \CurlHandle $handle
+ * @param resource $stream
  *
  * @return array
  */
-function curl_getinfo(\CurlHandle $handle): array
+function stream_get_meta_data($stream): array
 {
-    return Transport::$enabled ? Transport::$info : \curl_getinfo($handle);
+    if (!Transport::$enabled) {
+        return \stream_get_meta_data($stream);
+    }
+    $headers = ['HTTP/1.1 ' . (Transport::$info['http_code'] ?? 200) . ' Test'];
+    if (isset(Transport::$info['content_type'])) {
+        $headers[] = 'Content-Type: ' . Transport::$info['content_type'];
+    }
+    return [
+        'wrapper_data' => Transport::$info['response_headers'] ?? $headers,
+        'timed_out' => Transport::$info['timed_out'] ?? false,
+    ];
 }

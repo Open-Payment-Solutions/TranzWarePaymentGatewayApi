@@ -2,12 +2,27 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 
+use function OpenPaymentSolutions\TranzWarePaymentGateway\getUserAgent;
+
 trait RequestSettings
 {
-    private bool $strictSSL = true;
+    private bool $strictSSL = false;
     private ?string $sslKey = null;
     private ?string $sslKeyPass = '';
     private ?string $sslCertificate = null;
+    private ?string $userAgent = null;
+
+    /**
+     * Override the User-Agent or reset it to the package default with null.
+     *
+     * @param string|null $userAgent
+     *
+     * @return void
+     */
+    final public function setUserAgent(?string $userAgent): void
+    {
+        $this->userAgent = $userAgent === null ? null : getUserAgent($userAgent);
+    }
 
     /**
      * Sets ssl certificate file path required in request
@@ -23,19 +38,17 @@ trait RequestSettings
         ?string $cert,
         ?string $key,
         ?string $keyPass = '',
-        ?bool $strictSSL = true,
+        ?bool $strictSSL = false,
     ): void {
         $this->sslKey = $key;
         $this->sslKeyPass = $keyPass;
         $this->sslCertificate = $cert;
-        $this->setStrictSSL($strictSSL ?? true);
+        $this->setStrictSSL($strictSSL ?? false);
     }
 
     /**
      * Enable/Disable strict SSL mode.
-     * Modifies following params on request time:
-     *   CURLOPT_SSL_VERIFYHOST
-     *   CURLOPT_SSL_VERIFYPEER
+     * Controls certificate and peer name verification on TLS streams.
      *
      * @param bool $enable
      *

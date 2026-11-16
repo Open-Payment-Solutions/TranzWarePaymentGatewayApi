@@ -16,13 +16,24 @@ interface HTTPClientInterface
      * @param string|null $body
      * @param array|null $sslCertificate
      * @param bool $strictSSL
+     * @param string|null $userAgent
      */
     public function __construct(
         string $url,
         ?string $body = null,
         ?array $sslCertificate = null,
-        bool $strictSSL = true,
+        bool $strictSSL = false,
+        ?string $userAgent = null,
     );
+
+    /**
+     * Override the User-Agent or reset it to the package default with null.
+     *
+     * @param string|null $userAgent
+     *
+     * @return void
+     */
+    public function setUserAgent(?string $userAgent): void;
 
     /**
      * Set the HTTP debug output file.

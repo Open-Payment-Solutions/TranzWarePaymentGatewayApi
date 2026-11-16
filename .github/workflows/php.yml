@@ -29,7 +29,7 @@ jobs:
     - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
       with:
         php-version: ${{ matrix.php }}
-        extensions: curl, json, mbstring, simplexml
+        extensions: ':curl, json, mbstring, openssl, simplexml'
         coverage: xdebug
 
     - name: Validate composer.json and composer.lock
@@ -52,3 +52,37 @@ jobs:
 
     - name: Run test suite
       run: composer run-script test:coverage
+
+  integration:
+    name: Integration (${{ matrix.transport }}, strictSSL=${{ matrix.strict_ssl }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        transport: [streams, curl]
+        strict_ssl: ['0', '1']
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      with:
+        php-version: '8.2'
+        extensions: json, mbstring, simplexml
+        coverage: none
+    - name: Validate composer.json and composer.lock
+      run: |
+        test -s composer.lock
+        git ls-files --error-unmatch composer.lock
+        test "$(composer config lock --no-plugins --no-scripts)" = true
+        composer validate --strict --check-lock --no-plugins --no-scripts
+    - name: Install locked dependencies
+      run: |
+        composer install --prefer-dist --no-progress --no-interaction --no-plugins --no-scripts
+        git diff --exit-code -- composer.json composer.lock
+    - name: Generate certificates and test Docker HTTP and HTTPS servers
+      env:
+        TWPG_TEST_WITH_CURL: ${{ matrix.transport == 'curl' && '1' || '0' }}
+        TWPG_TEST_STRICT_SSL: ${{ matrix.strict_ssl }}
+      run: sh tests/integration/transports/run.sh

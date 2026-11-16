@@ -10,6 +10,15 @@ namespace OpenPaymentSolutions\TranzWarePaymentGateway\Requests;
 interface RequestInterface
 {
     /**
+     * Override the User-Agent or reset it to the package default with null.
+     *
+     * @param string|null $userAgent
+     *
+     * @return void
+     */
+    public function setUserAgent(?string $userAgent): void;
+
+    /**
      * Executes request and returns instance of
      * class that implements RequestResultInterface
      *
@@ -31,14 +40,12 @@ interface RequestInterface
         ?string $cert,
         ?string $key,
         ?string $keyPass = '',
-        ?bool $strictSSL = true,
+        ?bool $strictSSL = false,
     ): void;
 
     /**
      * Enable/Disable strict SSL mode.
-     * Modifies following params on request time:
-     *   CURLOPT_SSL_VERIFYHOST
-     *   CURLOPT_SSL_VERIFYPEER
+     * Controls certificate and peer name verification on TLS streams.
      *
      * @param bool $enable
      *

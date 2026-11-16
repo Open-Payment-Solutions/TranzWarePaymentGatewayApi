@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.7.1
+
+- Add `TransportFactory` and a common transport interface. Prefer `CurlTransport`
+  when cURL supports the requested protocol and its required functions are usable;
+  otherwise select `HTTPTransport` or `HTTPSTransport` after checking PHP streams.
+- Throw `TransportNotAvailable` with the missing requirements when neither backend
+  is usable. Check functions, `allow_url_fopen`, URL wrappers, TCP, and HTTPS TLS support.
+- Support XML POSTs, client certificates, private key passphrases, and custom CA
+  trust through both backends. Default `strictSSL` to `false`; explicit verification
+  settings and `enableSSLVerification()` remain supported.
+- Preserve raw HTTP error bodies and reject read timeouts and truncated bodies;
+  disable automatic redirects and reject unsupported URL schemes.
+- Make cURL and OpenSSL optional Composer suggestions and document the runtime
+  requirements and 10-second stream read timeout.
+- Expose response headers, timeout state, and stream errors in
+  `HTTPInfo::__unparsed`; retain cURL connection metadata when using that backend.
+- Adapt unit tests and add a standalone Docker suite for real HTTP, HTTPS, and
+  mutual TLS requests with and without cURL, separate from `composer test`.
+- Generate fresh test certificates before each Docker run and exercise all
+  transports with `strictSSL` enabled and disabled, including real connection failures.
+- Run all four cURL/stream and strictSSL combinations as separate GitHub Actions
+  integration jobs; keep integration checks separate from `composer test`.
+- Send `OpenPaymentSolutions/TranzWarePaymentGateway/v<version>` as the default
+  User-Agent, with optional overrides on factories, requests, clients, and transports.
+- Rename `samples/` to `examples/` and update integration instructions and tests.
+- Update version markers, documentation, and example dependencies to 1.7.1.
+
 ## 1.6.0
 
 - Replace `jawira/case-converter` with the namespaced `toPascalCase()` utility in
