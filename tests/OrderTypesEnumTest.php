@@ -33,8 +33,11 @@ final class OrderTypesEnumTest extends TestCase
      */
     public static function orderTypes(): array
     {
-        return [['Purchase', OrderTypes::PURCHASE], ['PRE_AUTH', OrderTypes::PRE_AUTH],
-            ['preAuth', OrderTypes::PRE_AUTH]];
+        return [['Purchase', OrderTypes::PURCHASE], ['purchase', OrderTypes::PURCHASE],
+            ['PURCHASE', OrderTypes::PURCHASE], ['PRE_AUTH', OrderTypes::PRE_AUTH],
+            ['preAuth', OrderTypes::PRE_AUTH], ['pre-auth', OrderTypes::PRE_AUTH],
+            ['pre auth', OrderTypes::PRE_AUTH], ['pre.auth', OrderTypes::PRE_AUTH],
+            ['__PRE__AUTH__', OrderTypes::PRE_AUTH]];
     }
 
     /**
@@ -60,7 +63,8 @@ final class OrderTypesEnumTest extends TestCase
      */
     public static function invalidTypes(): array
     {
-        return [[''], ['Unknown'], ['?!']];
+        return [[''], ['Unknown'], ['?!'], ['PREAUTH'], ['PreAUTH'], [' PreAuth'],
+            ['-pre-auth'], ['.pre.auth'], ['pré_auth']];
     }
 
     /**

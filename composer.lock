@@ -4,78 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a590518ad925dd862db0a87de2dbe303",
-    "packages": [
-        {
-            "name": "jawira/case-converter",
-            "version": "v3.7.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jawira/case-converter.git",
-                "reference": "146edde80d07c35cf880c74ce350969c1fc27474"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jawira/case-converter/zipball/146edde80d07c35cf880c74ce350969c1fc27474",
-                "reference": "146edde80d07c35cf880c74ce350969c1fc27474",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*",
-                "php": "^8.2"
-            },
-            "require-dev": {
-                "behat/behat": "^4.0",
-                "friendsofphp/php-cs-fixer": "^3.95",
-                "jawira/annotation-updater": "^1.1",
-                "jawira/skeleton": "^2.33",
-                "phpstan/phpstan": "^v2.3",
-                "phpunit/phpunit": "^9.6"
-            },
-            "suggest": {
-                "pds/skeleton": "PHP Package Development Standards",
-                "phing/phing": "PHP Build Tool"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Jawira\\CaseConverter\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jawira Portugal",
-                    "email": "dev@tugal.be"
-                }
-            ],
-            "description": "Convert strings between 13 naming conventions: Snake case, Camel case, Pascal case, Kebab case, Ada case, Train case, Cobol case, Macro case, Upper case, Lower case, Sentence case, Title case and Dot notation.",
-            "homepage": "https://jawira.github.io/case-converter/",
-            "keywords": [
-                "Ada case",
-                "Cobol case",
-                "Macro case",
-                "Train case",
-                "camel case",
-                "dot notation",
-                "kebab case",
-                "lower case",
-                "pascal case",
-                "sentence case",
-                "snake case",
-                "title case",
-                "upper case"
-            ],
-            "support": {
-                "issues": "https://github.com/jawira/case-converter/issues",
-                "source": "https://github.com/jawira/case-converter/tree/v3.7.0"
-            },
-            "time": "2026-10-12T17:46:48+00:00"
-        }
-    ],
+    "content-hash": "c64bccfb180cc18e4f13296c9a3d454c",
+    "packages": [],
     "packages-dev": [
         {
             "name": "myclabs/deep-copy",

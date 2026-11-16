@@ -2,8 +2,6 @@
 
 namespace OpenPaymentSolutions\TranzWarePaymentGateway;
 
-use Jawira\CaseConverter\CaseConverterException;
-use Jawira\CaseConverter\Convert;
 use OpenPaymentSolutions\TranzWarePaymentGateway\Exceptions\InvalidOrderType;
 
 enum OrderTypes: string
@@ -23,11 +21,8 @@ enum OrderTypes: string
         if (!preg_match('/^[A-Za-z_]+?/', $value)) {
             return '';
         }
-        try {
-            return (new Convert($value))->toPascal();
-        } catch (CaseConverterException) {
-            return '';
-        }
+
+        return toPascalCase($value);
     }
 
     /**

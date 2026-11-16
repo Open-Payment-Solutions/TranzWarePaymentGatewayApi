@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.6.0
+
+- Replace `jawira/case-converter` with the namespaced `toPascalCase()` utility in
+  `src/helpers.php`, loaded automatically through Composer.
+- Preserve existing order type normalization, separator precedence, Unicode
+  casing, and invalid UTF-8 handling.
+- Remove the third-party runtime dependency from Composer requirements and the
+  lockfile; keep mbstring for Unicode case conversion.
+- Add helper tests and extend order type parsing regression coverage.
+- Document the helper and update installation instructions and sample dependencies
+  to 1.6.0.
+
 ## 1.5.5
 
 - Add a security policy with private vulnerability reporting instructions,
