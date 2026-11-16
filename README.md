@@ -1,43 +1,27 @@
 > [!WARNING]
-> **ALERT: Breaking changes after 1.2.3.** Versions greater than `1.2.3`
+> **WARNING: Breaking changes after 1.2.3.** Versions greater than `1.2.3`
 > (`> 1.2.3`, not including `1.2.3`) are not backward compatible with the
 > original API. For existing integrations, use the strict requirement
 > **`"1.2.3"`** until you have migrated and tested your application.
 >
 > `composer require open-payment-solutions/tranzware-payment-gateway:"1.2.3"`
+>
+> Follow the [migration guide](MIGRATION.md) before upgrading.
 
 # TranzWare Payment Gateway (TWPG) API
 
 PHP library for creating orders, checking order status, and parsing callbacks from
 Compass Plus TranzWare Payment Gateway (also known as TWEC PG).
 
-The current edition is **1.7.1** on `main`. The original edition is preserved on
+The current edition is **1.7.2** on `main`. The original edition is preserved on
 `v1.2.3` (formerly `master`), with release tag `1.2.3`.
 
 ## Installation
 
-For an existing integration using the original API, pin **exactly 1.2.3**:
+Install the current edition:
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"1.2.3"
-```
-
-The corresponding `composer.json` requirement is:
-
-```json
-{
-  "require": {
-    "open-payment-solutions/tranzware-payment-gateway": "1.2.3"
-  }
-}
-```
-
-Keep the version free of `^` or `~` prefixes when you require the original API.
-
-For a new integration, or after migrating to the current API:
-
-```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.7.1"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.7.2"
 ```
 
 The current edition requires **PHP 8.2 or newer**, JSON, mbstring, and SimpleXML.
@@ -47,6 +31,9 @@ Your bank must provide the gateway URL, merchant ID, and client certificate and
 private key. PHP_CodeSniffer and PHPUnit are development dependencies.
 
 ## Integration
+
+For upgrades from 1.2.3, read the [old-to-latest API comparison](MIGRATION.md)
+before applying the current examples.
 
 Start with the [integration guide](docs/README.md), including examples for:
 
@@ -74,6 +61,7 @@ and the [changelog](CHANGELOG.md).
 | 1.5.5 | Add a security policy with private vulnerability reporting and security update guidance. |
 | 1.6.0 | Replace the case-converter dependency with an autoloaded PascalCase utility; preserve order type normalization. |
 | 1.7.1 | Prefer cURL with checked stream fallback, default strictSSL to false, add configurable versioned User-Agent, rename examples, and add Docker integration CI. |
+| 1.7.2 | Add the old-to-latest migration guide and simplify the installation warning. |
 
 ### Public API names
 
@@ -225,7 +213,7 @@ use a 10-second timeout; cURL uses a 10-second connection timeout. The factory
 selects a backend before sending; failed requests are not retried through another
 transport.
 
-Requests send `User-Agent: OpenPaymentSolutions/TranzWarePaymentGateway/v1.7.1`
+Requests send `User-Agent: OpenPaymentSolutions/TranzWarePaymentGateway/v1.7.2`
 by default. The version comes from the package's `VERSION` file. Override it
 before creating requests, or pass `null` to restore the package default:
 

@@ -1,13 +1,13 @@
-# Integration guide — 1.7.1
+# Integration guide — 1.7.2
 
 This guide uses the shortened API names introduced in 1.3.0 on `main`.
 For the original names, use [edition 1.2.3](../README.md#using-the-previous-edition-123).
-When upgrading, follow the [migration instructions](../CHANGELOG.md#130).
+When upgrading, follow the [old-to-latest migration guide](../MIGRATION.md).
 
 ## Install
 
 ```sh
-composer require open-payment-solutions/tranzware-payment-gateway:"~1.7.1"
+composer require open-payment-solutions/tranzware-payment-gateway:"~1.7.2"
 ```
 
 Use PHP 8.2 or newer and enable JSON, mbstring, and SimpleXML. HTTP requests prefer

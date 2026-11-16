@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.2
+
+- Add `MIGRATION.md` comparing the original 1.2.3 API with the latest 1.5.x+
+  API, including code examples, renamed types, structured results, enums,
+  exceptions, and later transport changes.
+- Link the migration guide from the README and integration guide.
+- Change the README compatibility label from ALERT to WARNING and remove the
+  repeated legacy installation instructions below the warning.
+- Update version markers, documentation, and example dependencies to 1.7.2.
+
 ## 1.7.1
 
 - Add `TransportFactory` and a common transport interface. Prefer `CurlTransport`
